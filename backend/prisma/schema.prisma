@@ -1,0 +1,150 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo de Usuário
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole @default(OPERATOR)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  movements Movement[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  OPERATOR
+}
+
+// Modelo de Categoria
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  products Product[]
+
+  @@map("categories")
+}
+
+// Modelo de Fornecedor
+model Supplier {
+  id        String   @id @default(uuid())
+  name      String
+  cnpj      String?  @unique
+  email     String?
+  phone     String?
+  address   String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[]
+
+  @@map("suppliers")
+}
+
+// Modelo de Produto
+model Product {
+  id             String        @id @default(uuid())
+  code           String        @unique
+  name           String
+  description    String?
+  unit           String        @default("UN")
+  currentStock   Int           @default(0)
+  minStock       Int           @default(0)
+  maxStock       Int?
+  costPrice      Float         @default(0)
+  salePrice      Float?
+  location       String?
+  status         ProductStatus @default(ACTIVE)
+  categoryId     String?
+  supplierId     String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  category  Category?  @relation(fields: [categoryId], references: [id])
+  supplier  Supplier?  @relation(fields: [supplierId], references: [id])
+  movements Movement[]
+
+  @@map("products")
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  DISCONTINUED
+}
+
+// Modelo de Movimentação
+model Movement {
+  id          String       @id @default(uuid())
+  productId   String
+  type        MovementType
+  quantity    Int
+  unitPrice   Float?
+  totalPrice  Float?
+  observation String?
+  userId      String
+  createdAt   DateTime     @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@map("movements")
+}
+
+enum MovementType {
+  IN
+  OUT
+  ADJUSTMENT
+  RETURN
+  LOSS
+  TRANSFER
+}
+
+// Modelo de Patrimônio
+model Asset {
+  id               String      @id @default(uuid())
+  code             String      @unique
+  name             String
+  description      String?
+  purchaseDate     DateTime?
+  purchaseValue    Float?
+  currentValue     Float?
+  location         String?
+  responsible      String?
+  status           AssetStatus @default(ACTIVE)
+  serialNumber     String?
+  warrantyExpires  DateTime?
+  maintenanceDate  DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@map("assets")
+}
+
+enum AssetStatus {
+  ACTIVE
+  MAINTENANCE
+  INACTIVE
+  DISPOSED
+}
