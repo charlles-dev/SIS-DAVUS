@@ -1,0 +1,7 @@
+{
+  "name": "Davus Engenharia - Sistema de Controle",
+  "description": "Sistema de Controle de Estoque e Patrimônio - Davus Engenharia. Gestão de insumos, ativos, manutenções e fluxo de compras.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --davus-primary: #f97316;
+  --davus-secondary: #ea580c;
+  --bg: #f8fafc;
+  --text: #0f172a;
+}
+
+/* Smooth font and better text rendering */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+/* Container to center content and set max widths */
+.app-container {
+  max-width: 1120px;
+  /* ~7xl */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width:768px) {
+  .app-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem
+  }
+}
+
+/* Subtle card elevation */
+.elevated {
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+/* Improve focus outlines for accessibility */
+:focus {
+  outline: 2px solid rgba(220, 119, 89, 0.15);
+  outline-offset: 2px
+}
+
+/* Improve scrollbars on desktop */
+/* Glassmorphism */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Smooth scrollbar */
+@media (hover: hover) and (pointer: fine) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.5);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.8);
+  }
+}
