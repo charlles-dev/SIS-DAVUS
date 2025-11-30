@@ -5,7 +5,7 @@ import { AuthService } from '@/api/services';
 import { Button, Input, Card, CardContent, DavusLogo } from '../components/UI';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WelcomeAnimation } from '../components/WelcomeAnimation';
+
 import { MorphingButton } from '../components/MorphingButton';
 
 export const LoginPage: React.FC = () => {
@@ -13,7 +13,7 @@ export const LoginPage: React.FC = () => {
   const login = useAuthStore(state => state.login);
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(false);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,16 +21,14 @@ export const LoginPage: React.FC = () => {
     try {
       const response = await AuthService.login(username);
       login(response);
-      setShowWelcome(true);
+      navigate('/');
     } catch (error) {
       toast.error('Login falhou. Verifique suas credenciais.');
       setLoading(false);
     }
   };
 
-  const handleWelcomeComplete = () => {
-    navigate('/');
-  };
+
 
   const container = {
     hidden: { opacity: 0 },
@@ -50,13 +48,7 @@ export const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-davus-light dark:bg-gray-950 flex items-center justify-center p-4 transition-colors duration-300">
-      <AnimatePresence>
-        {showWelcome && (
-          <WelcomeAnimation
-            onComplete={handleWelcomeComplete}
-          />
-        )}
-      </AnimatePresence>
+
 
       <div className="w-full max-w-md">
         <motion.div
@@ -108,7 +100,7 @@ export const LoginPage: React.FC = () => {
                   <MorphingButton
                     type="submit"
                     className="w-full mt-2"
-                    status={loading ? 'loading' : showWelcome ? 'success' : 'idle'}
+                    status={loading ? 'loading' : 'idle'}
                   >
                     Acessar
                   </MorphingButton>

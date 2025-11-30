@@ -7,7 +7,7 @@ interface ThemeState {
 }
 
 export const useThemeStore = create<ThemeState>((set, get) => ({
-    theme: (localStorage.getItem('theme') as 'light' | 'dark') || 'light',
+    theme: (localStorage.getItem('theme') as 'light' | 'dark') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
     toggleTheme: () => {
         const newTheme = get().theme === 'light' ? 'dark' : 'light';
         localStorage.setItem('theme', newTheme);

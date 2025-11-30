@@ -28,7 +28,7 @@ const MaintenanceBoardPage = lazy(() => import('@/pages/MaintenanceBoard').then(
 const AdminToolsPage = lazy(() => import('@/pages/AdminTools').then(module => ({ default: module.AdminToolsPage })));
 const BulkPrintPage = lazy(() => import('@/pages/BulkPrint').then(module => ({ default: module.BulkPrintPage })));
 const ProfilePage = lazy(() => import('@/pages/Profile').then(module => ({ default: module.ProfilePage })));
-const AIInsightsPage = lazy(() => import('@/pages/AIInsights').then(module => ({ default: module.AIInsightsPage })));
+
 const NotFoundPage = lazy(() => import('@/pages/ErrorPages').then(module => ({ default: module.NotFoundPage })));
 const UnauthorizedPage = lazy(() => import('@/pages/ErrorPages').then(module => ({ default: module.UnauthorizedPage })));
 
@@ -82,7 +82,7 @@ const App: React.FC = () => {
                       <Route path="checkouts" element={<CheckoutsPage />} />
                       <Route path="admin" element={<AdminPage />} />
                       <Route path="reports" element={<ReportsPage />} />
-                      <Route path="ai-insights" element={<AIInsightsPage />} />
+
 
                       <Route path="locations" element={<LocationsPage />} />
                       <Route path="maintenance-board" element={<MaintenanceBoardPage />} />

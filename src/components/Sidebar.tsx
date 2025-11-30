@@ -45,7 +45,7 @@ export const Sidebar: React.FC = () => {
         { to: '/admin', icon: Users, label: 'Usuários' },
         { to: '/admin-tools', icon: Settings, label: 'Ferramentas Admin' },
         { to: '/reports', icon: FileText, label: 'Relatórios' },
-        { to: '/ai-insights', icon: Brain, label: 'Inteligência Artificial' },
+
     ];
 
     const sidebarVariants = {
