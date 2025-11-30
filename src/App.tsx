@@ -1,6 +1,6 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useAuthStore } from '@/store';
+import { useAuthStore, useThemeStore } from '@/store';
 import { NotificationProvider } from '@/context/NotificationContext';
 import { TourProvider } from '@/context/TourContext';
 import { MainLayout } from '@/components/Layout';
@@ -50,6 +50,22 @@ const LoadingFallback = () => (
 );
 
 const App: React.FC = () => {
+  const { initTheme, setTheme } = useThemeStore();
+
+  useEffect(() => {
+    initTheme();
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (!localStorage.getItem('theme')) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [initTheme, setTheme]);
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>

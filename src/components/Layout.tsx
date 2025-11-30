@@ -1,7 +1,5 @@
 import React, { useEffect } from 'react';
 import { useLocation, Outlet } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
-import { PageTransition } from './MotionWrapper';
 import { useSwipe } from '../hooks/useSwipe';
 import {
   Menu,
@@ -101,11 +99,7 @@ export const MainLayout: React.FC = () => {
           <main className="flex-1 overflow-x-hidden py-4 md:py-8">
             <div className="app-container">
               <div className="space-y-6">
-                <AnimatePresence mode="wait">
-                  <PageTransition key={location.pathname}>
-                    <Outlet />
-                  </PageTransition>
-                </AnimatePresence>
+                <Outlet />
               </div>
             </div>
           </main>

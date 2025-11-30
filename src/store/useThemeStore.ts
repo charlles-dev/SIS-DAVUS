@@ -3,6 +3,7 @@ import { create } from 'zustand';
 interface ThemeState {
     theme: 'light' | 'dark';
     toggleTheme: () => void;
+    setTheme: (theme: 'light' | 'dark') => void;
     initTheme: () => void;
 }
 
@@ -20,14 +21,25 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
 
         set({ theme: newTheme });
     },
-    initTheme: () => {
-        const stored = localStorage.getItem('theme') as 'light' | 'dark';
-        if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    setTheme: (theme: 'light' | 'dark') => {
+        if (theme === 'dark') {
             document.documentElement.classList.add('dark');
-            set({ theme: 'dark' });
         } else {
             document.documentElement.classList.remove('dark');
-            set({ theme: 'light' });
+        }
+        set({ theme });
+    },
+    initTheme: () => {
+        const stored = localStorage.getItem('theme') as 'light' | 'dark';
+        if (stored) {
+            if (stored === 'dark') document.documentElement.classList.add('dark');
+            else document.documentElement.classList.remove('dark');
+            set({ theme: stored });
+        } else {
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            if (systemTheme === 'dark') document.documentElement.classList.add('dark');
+            else document.documentElement.classList.remove('dark');
+            set({ theme: systemTheme });
         }
     }
 }));
