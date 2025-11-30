@@ -9,6 +9,8 @@ import { Toaster } from 'sonner';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { ServerAwakeGuard } from '@/components/feedback/ServerAwakeGuard';
+import { PWAInstallPrompt } from '@/components/pwa/PWAInstallPrompt';
+import { PWAUpdateToast } from '@/components/pwa/PWAUpdateToast';
 
 // Lazy load pages
 const HomePage = lazy(() => import('@/pages/Home').then(module => ({ default: module.HomePage })));
@@ -79,6 +81,8 @@ const App: React.FC = () => {
             <NotificationProvider>
               <TourProvider>
                 <Toaster position="top-right" richColors />
+                <PWAUpdateToast />
+                <PWAInstallPrompt />
                 <Suspense fallback={<LoadingFallback />}>
                   <Routes>
                     <Route path="/login" element={<LoginPage />} />
