@@ -1,0 +1,65 @@
+﻿src/components/Shared.tsx(5,34): error TS2307: Cannot find module '../services' or its corresponding type declarations.
+src/components/Shared.tsx(6,30): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+src/hooks/useAssets.ts(2,30): error TS2307: Cannot find module '../services' or its corresponding type declarations.
+src/hooks/useAssets.ts(3,40): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+src/hooks/useInventory.ts(2,34): error TS2307: Cannot find module '../services' or its corresponding type declarations.
+src/hooks/useInventory.ts(3,50): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+src/lib/schemas.ts(2,48): error TS2307: Cannot find module './types' or its corresponding type declarations.
+src/pages/Admin.tsx(7,30): error TS2307: Cannot find module '../services' or its corresponding type declarations.
+src/pages/Admin.tsx(8,32): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+src/pages/AdminTools.tsx(9,30): error TS2307: Cannot find module '../services' or its corresponding type declarations.
+src/pages/AdminTools.tsx(10,26): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+src/pages/AssetDetails.tsx(6,30): error TS2307: Cannot find module '../services' or its corresponding type declarations.
+src/pages/AssetDetails.tsx(7,23): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+src/pages/Assets.tsx(16,53): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+src/pages/Assets.tsx(17,29): error TS2307: Cannot find module '../schemas' or its corresponding type declarations.
+src/pages/Assets.tsx(113,26): error TS2339: Property 'find' does not exist on type 'unknown'.
+src/pages/Assets.tsx(121,33): error TS2339: Property 'filter' does not exist on type 'unknown'.
+src/pages/Assets.tsx(140,37): error TS2339: Property 'map' does not exist on type 'unknown'.
+src/pages/Assets.tsx(197,21): error TS2322: Type '{ value: unknown; label: unknown; }' is not assignable to type '{ value: string; label: string; }'.
+  Types of property 'value' are incompatible.
+    Type 'unknown' is not assignable to type 'string'.
+src/pages/Assets.tsx(409,17): error TS2322: Type '{ value: unknown; label: unknown; }[]' is not assignable to type '{ value: string; label: string; }[]'.
+  Type '{ value: unknown; label: unknown; }' is not assignable to type '{ value: string; label: string; }'.
+    Types of property 'value' are incompatible.
+      Type 'unknown' is not assignable to type 'string'.
+src/pages/AuthPages.tsx(5,29): error TS2307: Cannot find module '../services' or its corresponding type declarations.
+src/pages/BulkPrint.tsx(7,45): error TS2307: Cannot find module '../services' or its corresponding type declarations.
+src/pages/BulkPrint.tsx(8,35): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+src/pages/Checkouts.tsx(10,30): error TS2307: Cannot find module '../services' or its corresponding type declarations.
+src/pages/Checkouts.tsx(11,33): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+src/pages/Checkouts.tsx(12,52): error TS2307: Cannot find module '../schemas' or its corresponding type declarations.
+src/pages/Dashboard.tsx(6,34): error TS2307: Cannot find module '../services' or its corresponding type declarations.
+src/pages/Dashboard.tsx(7,34): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+src/pages/Home.tsx(15,34): error TS2307: Cannot find module '../services' or its corresponding type declarations.
+src/pages/Home.tsx(16,34): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+src/pages/Inventory.tsx(12,50): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+src/pages/Inventory.tsx(80,37): error TS2339: Property 'filter' does not exist on type 'unknown'.
+src/pages/Inventory.tsx(151,29): error TS2345: Argument of type '{ name: string; category: string; unit: UnitType; min_threshold: number; current_stock: number; }' is not assignable to parameter of type 'void'.
+src/pages/Inventory.tsx(200,73): error TS2345: Argument of type 'string' is not assignable to parameter of type 'void'.
+src/pages/Inventory.tsx(266,38): error TS2339: Property 'map' does not exist on type 'unknown'.
+src/pages/Inventory.tsx(559,15): error TS2322: Type '{ value: unknown; label: unknown; }[]' is not assignable to type '{ value: string; label: string; }[]'.
+  Type '{ value: unknown; label: unknown; }' is not assignable to type '{ value: string; label: string; }'.
+    Types of property 'value' are incompatible.
+      Type 'unknown' is not assignable to type 'string'.
+src/pages/Inventory.tsx(608,125): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/pages/Inventory.tsx(768,15): error TS2322: Type '{ value: unknown; label: unknown; }' is not assignable to type '{ value: string; label: string; }'.
+  Types of property 'value' are incompatible.
+    Type 'unknown' is not assignable to type 'string'.
+src/pages/Locations.tsx(7,33): error TS2307: Cannot find module '../services' or its corresponding type declarations.
+src/pages/Locations.tsx(8,26): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+src/pages/Login.tsx(5,29): error TS2307: Cannot find module '../services' or its corresponding type declarations.
+src/pages/MaintenanceBoard.tsx(7,30): error TS2307: Cannot find module '../services' or its corresponding type declarations.
+src/pages/MaintenanceBoard.tsx(8,60): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+src/pages/MaintenanceBoard.tsx(9,58): error TS2307: Cannot find module '../schemas' or its corresponding type declarations.
+src/pages/MaintenanceBoard.tsx(310,13): error TS2322: Type '{ value: unknown; label: unknown; }[]' is not assignable to type '{ value: string; label: string; }[]'.
+  Type '{ value: unknown; label: unknown; }' is not assignable to type '{ value: string; label: string; }'.
+    Types of property 'value' are incompatible.
+      Type 'unknown' is not assignable to type 'string'.
+src/pages/Movements.tsx(8,34): error TS2307: Cannot find module '../services' or its corresponding type declarations.
+src/pages/Movements.tsx(9,31): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+src/pages/Profile.tsx(5,29): error TS2307: Cannot find module '../services' or its corresponding type declarations.
+src/pages/Purchases.tsx(7,51): error TS2307: Cannot find module '../services' or its corresponding type declarations.
+src/pages/Purchases.tsx(8,58): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+src/pages/Reports.tsx(7,31): error TS2307: Cannot find module '../services' or its corresponding type declarations.
+src/pages/Reports.tsx(8,36): error TS2307: Cannot find module '../types' or its corresponding type declarations.
