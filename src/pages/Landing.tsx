@@ -10,6 +10,7 @@ import {
     ArrowRight,
     CheckCircle2
 } from 'lucide-react';
+import { DavusLogo } from '../components/UI';
 
 export const LandingPage: React.FC = () => {
     const navigate = useNavigate();
@@ -42,12 +43,7 @@ export const LandingPage: React.FC = () => {
             {/* Navbar */}
             <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-davus-primary rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                        D
-                    </div>
-                    <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-davus-primary to-blue-600">
-                        SIS-DAVUS
-                    </span>
+                    <DavusLogo className="h-10 w-auto" />
                 </div>
                 <button
                     onClick={() => navigate('/login')}
