@@ -1,8 +1,0 @@
-﻿src/pages/MaintenanceBoard.tsx(116,5): error TS2322: Type 'Resolver<{ asset_id: string; vendor: string; description: string; cost: unknown; status?: MaintenanceStatus; }, any, { asset_id: string; vendor: string; description: string; cost: number; status?: MaintenanceStatus; }>' is not assignable to type 'Resolver<{ asset_id: string; vendor: string; description: string; cost: number; status?: MaintenanceStatus; }, any, { asset_id: string; vendor: string; description: string; cost: number; status?: MaintenanceStatus; }>'.
-  Types of parameters 'options' and 'options' are incompatible.
-    Type 'ResolverOptions<{ asset_id: string; vendor: string; description: string; cost: number; status?: MaintenanceStatus; }>' is not assignable to type 'ResolverOptions<{ asset_id: string; vendor: string; description: string; cost: unknown; status?: MaintenanceStatus; }>'.
-      Type 'unknown' is not assignable to type 'number'.
-src/pages/MaintenanceBoard.tsx(250,38): error TS2345: Argument of type '(data: MaintenanceFormValues) => Promise<void>' is not assignable to parameter of type 'SubmitHandler<TFieldValues>'.
-  Types of parameters 'data' and 'data' are incompatible.
-    Type 'TFieldValues' is not assignable to type '{ asset_id: string; vendor: string; description: string; cost: number; status?: MaintenanceStatus; }'.
-      Type 'FieldValues' is missing the following properties from type '{ asset_id: string; vendor: string; description: string; cost: number; status?: MaintenanceStatus; }': asset_id, vendor, description, cost
