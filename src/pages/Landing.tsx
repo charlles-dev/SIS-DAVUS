@@ -43,7 +43,7 @@ export const LandingPage: React.FC = () => {
             {/* Navbar */}
             <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                    <DavusLogo className="h-10 w-auto" />
+                    <DavusLogo className="h-16 w-auto" />
                 </div>
                 <button
                     onClick={() => navigate('/login')}
