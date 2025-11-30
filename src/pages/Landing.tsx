@@ -165,7 +165,7 @@ export const LandingPage: React.FC = () => {
                 <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
                     <div className="mb-4 md:mb-0">
                         <span className="text-xl font-bold text-gray-800 dark:text-white">SIS-DAVUS</span>
-                        <p className="text-sm text-gray-500 mt-1">© 2024 Davus Engenharia. Todos os direitos reservados.</p>
+                        <p className="text-sm text-gray-500 mt-1">© 2025 Davus Engenharia. Todos os direitos reservados.</p>
                     </div>
                     <div className="flex gap-6">
                         <a href="#" className="text-gray-500 hover:text-davus-primary transition-colors">Termos</a>
