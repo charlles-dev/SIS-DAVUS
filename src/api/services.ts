@@ -24,20 +24,109 @@ import { compressImage } from '@/lib/ImageCompressor';
 
 // --- Services ---
 
+import { supabase } from '@/lib/supabase';
+import { useAuthStore } from '@/store/useAuthStore';
+
 export const AuthService = {
-  login: async (username: string): Promise<LoginResponse> => {
-    const response = await api.post<LoginResponse>('/auth/login/', { username });
-    return response.data;
+  login: async (username: string, password?: string): Promise<LoginResponse> => {
+    let email = username;
+
+    // Check if input is CPF (only digits)
+    const isCpf = /^\d+$/.test(username.replace(/\D/g, ''));
+    if (isCpf) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username') // username field in profiles stores the email (historical naming) or we should use email if we added it. 
+        // Wait, profiles.username was storing the email/username. 
+        // Let's check handle_new_user trigger. It stores email in username column.
+        .eq('cpf', username.replace(/\D/g, ''))
+        .single();
+
+      if (profile) {
+        email = profile.username;
+      }
+    } else if (!username.includes('@')) {
+      email = `${username}@davus.com`;
+    }
+
+    if (!password) {
+      throw new Error("Password is required for Supabase auth");
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) throw error;
+    if (!data.user || !data.session) throw new Error("Login failed: No user or session returned");
+
+    const user: User = {
+      id: data.user.id,
+      username: data.user.user_metadata.username || data.user.email || '',
+      full_name: data.user.user_metadata.full_name || '',
+      role: data.user.user_metadata.role || UserRole.OPERATOR,
+      is_active: true
+    };
+
+    // Check profile for must_change_password
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('must_change_password')
+      .eq('id', user.id)
+      .single();
+
+    return {
+      token: data.session.access_token,
+      user: {
+        ...user,
+        must_change_password: profile?.must_change_password
+      }
+    };
   },
   resetPassword: async (email: string): Promise<void> => {
-    await api.post('/auth/password-reset/', { email });
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) throw error;
   },
   updateProfile: async (user: Partial<User>): Promise<User> => {
-    const response = await api.patch<User>(`/auth/profile/${user.id}/`, user);
-    return response.data;
+    const { data, error } = await supabase.auth.updateUser({
+      data: {
+        full_name: user.full_name,
+        role: user.role,
+        // other metadata
+      }
+    });
+    if (error) throw error;
+    if (!data.user) throw new Error("User not found");
+
+    return {
+      id: data.user.id,
+      username: data.user.user_metadata.username || data.user.email || '',
+      full_name: data.user.user_metadata.full_name || '',
+      role: data.user.user_metadata.role || UserRole.OPERATOR,
+      is_active: true
+    };
   },
   changePassword: async (oldPass: string, newPass: string): Promise<void> => {
-    await api.post('/auth/password-change/', { old_password: oldPass, new_password: newPass });
+    const { error } = await supabase.auth.updateUser({ password: newPass });
+    if (error) throw error;
+
+    // Update profile to disable must_change_password
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({ must_change_password: false })
+      .eq('id', (await supabase.auth.getUser()).data.user?.id);
+
+    if (profileError) console.error("Failed to update profile status", profileError);
+
+    // Update local store
+    const user = useAuthStore.getState().user;
+    if (user) {
+      useAuthStore.getState().login({
+        token: (await supabase.auth.getSession()).data.session?.access_token || '',
+        user: { ...user, must_change_password: false }
+      });
+    }
   }
 };
 
@@ -170,28 +259,65 @@ export const LocationService = {
 
 export const AdminService = {
   getUsers: async (): Promise<User[]> => {
-    const response = await api.get<User[]>('/admin/users/');
-    return response.data;
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('full_name');
+
+    if (error) throw error;
+
+    return data.map(profile => ({
+      id: profile.id,
+      username: profile.username || '',
+      full_name: profile.full_name || '',
+      role: profile.role as UserRole,
+      is_active: profile.is_active
+    }));
   },
-  createUser: async (user: Omit<User, 'id'>): Promise<void> => {
-    await api.post('/admin/users/', user);
+  createUser: async (user: Omit<User, 'id'> & { password?: string, cpf?: string }): Promise<void> => {
+    const { error } = await supabase.functions.invoke('create-user', {
+      body: {
+        email: user.username, // Assuming username is now email
+        password: user.password || '123456',
+        full_name: user.full_name,
+        role: user.role,
+        cpf: user.cpf
+      }
+    });
+
+    if (error) throw error;
   },
   toggleUserStatus: async (id: string): Promise<void> => {
-    await api.post(`/admin/users/${id}/toggle/`);
+    // First get current status
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_active')
+      .eq('id', id)
+      .single();
+
+    if (profile) {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_active: !profile.is_active })
+        .eq('id', id);
+
+      if (error) throw error;
+    }
+  },
+  deleteUser: async (userId: string): Promise<void> => {
+    const { error } = await supabase.functions.invoke('delete-user', {
+      body: { user_id: userId }
+    });
+
+    if (error) throw error;
   },
   getAuditLogs: async (): Promise<AuditLog[]> => {
-    const response = await api.get<AuditLog[]>('/admin/audit-logs/');
-    return response.data;
+    // Mock for now or implement audit logs table later
+    return [];
   },
   importData: async (type: 'INVENTORY' | 'ASSETS', file: File): Promise<{ success: number, errors: number }> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('type', type);
-
-    const response = await api.post<{ success: number, errors: number }>('/admin/import/', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-    return response.data;
+    // Implement import logic later
+    return { success: 0, errors: 0 };
   }
 };
 

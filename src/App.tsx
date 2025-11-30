@@ -15,6 +15,7 @@ const HomePage = lazy(() => import('@/pages/Home').then(module => ({ default: mo
 const LandingPage = lazy(() => import('@/pages/Landing').then(module => ({ default: module.LandingPage })));
 const LoginPage = lazy(() => import('@/pages/Login').then(module => ({ default: module.LoginPage })));
 const ForgotPasswordPage = lazy(() => import('@/pages/AuthPages').then(module => ({ default: module.ForgotPasswordPage })));
+const ForceChangePasswordPage = lazy(() => import('@/pages/ForceChangePassword').then(module => ({ default: module.ForceChangePasswordPage })));
 const DashboardPage = lazy(() => import('@/pages/Dashboard').then(module => ({ default: module.DashboardPage })));
 const InventoryPage = lazy(() => import('@/pages/Inventory').then(module => ({ default: module.InventoryPage })));
 const AssetsPage = lazy(() => import('@/pages/Assets').then(module => ({ default: module.AssetsPage })));
@@ -34,10 +35,14 @@ const NotFoundPage = lazy(() => import('@/pages/ErrorPages').then(module => ({ d
 const UnauthorizedPage = lazy(() => import('@/pages/ErrorPages').then(module => ({ default: module.UnauthorizedPage })));
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { user, isAuthenticated } = useAuthStore();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (user?.must_change_password) {
+    return <Navigate to="/force-change-password" replace />;
   }
 
   return <>{children}</>;
@@ -79,6 +84,7 @@ const App: React.FC = () => {
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                     <Route path="/" element={<LandingPage />} />
+                    <Route path="/force-change-password" element={<ForceChangePasswordPage />} />
 
                     <Route path="/app" element={
                       <ProtectedRoute>

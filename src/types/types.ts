@@ -54,7 +54,9 @@ export interface User {
   username: string;
   full_name: string;
   role: UserRole;
-  is_active?: boolean;
+  is_active: boolean;
+  must_change_password?: boolean;
+  cpf?: string;
 }
 
 export interface Product {

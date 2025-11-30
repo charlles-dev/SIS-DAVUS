@@ -32,21 +32,22 @@ export const Sidebar: React.FC = () => {
     const [isCollapsed, setIsCollapsed] = React.useState(false);
 
     const links = [
-        { to: '/app/home', icon: Home, label: 'Início' },
-        { to: '/app/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-        { to: '/app/inventory', icon: Package, label: 'Estoque' },
-        { to: '/app/movements', icon: History, label: 'Movimentações' },
-        { to: '/app/purchases', icon: ShoppingCart, label: 'Compras' },
-        { to: '/app/assets', icon: Wrench, label: 'Patrimônio' },
-        { to: '/app/maintenance-board', icon: Settings, label: 'Manutenção' },
-        { to: '/app/checkouts', icon: HardHat, label: 'Cautelas' },
-        { to: '/app/locations', icon: MapPin, label: 'Obras & Locais' },
-        { to: '/app/bulk-print', icon: Printer, label: 'Impressão' },
-        { to: '/app/admin', icon: Users, label: 'Usuários' },
-        { to: '/app/admin-tools', icon: Settings, label: 'Ferramentas Admin' },
-        { to: '/app/reports', icon: FileText, label: 'Relatórios' },
-
+        { to: '/app/home', icon: Home, label: 'Início', roles: ['ADMIN', 'MANAGER', 'OPERATOR'] },
+        { to: '/app/dashboard', icon: LayoutDashboard, label: 'Dashboard', roles: ['ADMIN', 'MANAGER', 'OPERATOR'] },
+        { to: '/app/inventory', icon: Package, label: 'Estoque', roles: ['ADMIN', 'MANAGER', 'OPERATOR'] },
+        { to: '/app/movements', icon: History, label: 'Movimentações', roles: ['ADMIN', 'MANAGER', 'OPERATOR'] },
+        { to: '/app/purchases', icon: ShoppingCart, label: 'Compras', roles: ['ADMIN', 'MANAGER', 'OPERATOR'] },
+        { to: '/app/assets', icon: Wrench, label: 'Patrimônio', roles: ['ADMIN', 'MANAGER', 'OPERATOR'] },
+        { to: '/app/maintenance-board', icon: Settings, label: 'Manutenção', roles: ['ADMIN', 'MANAGER', 'OPERATOR'] },
+        { to: '/app/checkouts', icon: HardHat, label: 'Cautelas', roles: ['ADMIN', 'MANAGER', 'OPERATOR'] },
+        { to: '/app/locations', icon: MapPin, label: 'Obras & Locais', roles: ['ADMIN', 'MANAGER', 'OPERATOR'] },
+        { to: '/app/bulk-print', icon: Printer, label: 'Impressão', roles: ['ADMIN', 'MANAGER', 'OPERATOR'] },
+        { to: '/app/admin', icon: Users, label: 'Usuários', roles: ['ADMIN'] },
+        { to: '/app/admin-tools', icon: Settings, label: 'Ferramentas Admin', roles: ['ADMIN'] },
+        { to: '/app/reports', icon: FileText, label: 'Relatórios', roles: ['ADMIN', 'MANAGER'] },
     ];
+
+    const filteredLinks = links.filter(link => user && link.roles.includes(user.role));
 
     const sidebarVariants = {
         open: { width: 250, transition: { duration: 0.3, ease: "easeInOut" as const } },
@@ -104,7 +105,7 @@ export const Sidebar: React.FC = () => {
 
                 {/* Navigation */}
                 <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1 custom-scrollbar">
-                    {links.map((link) => {
+                    {filteredLinks.map((link) => {
                         const isActive = location.pathname.startsWith(link.to);
                         return (
                             <Link

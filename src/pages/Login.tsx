@@ -12,6 +12,7 @@ export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const login = useAuthStore(state => state.login);
   const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
 
@@ -19,7 +20,7 @@ export const LoginPage: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await AuthService.login(username);
+      const response = await AuthService.login(username, password);
       login(response);
       navigate('/app/home');
     } catch (error) {
@@ -92,7 +93,8 @@ export const LoginPage: React.FC = () => {
                     type="password"
                     label="Senha"
                     placeholder="********"
-                    defaultValue="123456" // Demo convenience
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                 </motion.div>
