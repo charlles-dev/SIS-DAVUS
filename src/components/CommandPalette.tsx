@@ -55,19 +55,19 @@ export const CommandPalette: React.FC = () => {
     };
 
     const items = [
-        { label: 'Dashboard', icon: LayoutDashboard, action: () => navigate('/dashboard'), group: 'Navegação' },
-        { label: 'Estoque', icon: Package, action: () => navigate('/inventory'), group: 'Navegação' },
-        { label: 'Movimentações', icon: History, action: () => navigate('/movements'), group: 'Navegação' },
-        { label: 'Compras', icon: ShoppingCart, action: () => navigate('/purchases'), group: 'Navegação' },
-        { label: 'Patrimônio', icon: Wrench, action: () => navigate('/assets'), group: 'Navegação' },
-        { label: 'Cautelas', icon: HardHat, action: () => navigate('/checkouts'), group: 'Navegação' },
-        { label: 'Obras & Locais', icon: MapPin, action: () => navigate('/locations'), group: 'Navegação' },
-        { label: 'Impressão', icon: Printer, action: () => navigate('/bulk-print'), group: 'Navegação' },
-        { label: 'Usuários', icon: Users, action: () => navigate('/admin'), group: 'Navegação' },
-        { label: 'Relatórios', icon: FileText, action: () => navigate('/reports'), group: 'Navegação' },
-        { label: 'Inteligência Artificial', icon: Brain, action: () => navigate('/ai-insights'), group: 'Navegação' },
+        { label: 'Dashboard', icon: LayoutDashboard, action: () => navigate('/app/dashboard'), group: 'Navegação' },
+        { label: 'Estoque', icon: Package, action: () => navigate('/app/inventory'), group: 'Navegação' },
+        { label: 'Movimentações', icon: History, action: () => navigate('/app/movements'), group: 'Navegação' },
+        { label: 'Compras', icon: ShoppingCart, action: () => navigate('/app/purchases'), group: 'Navegação' },
+        { label: 'Patrimônio', icon: Wrench, action: () => navigate('/app/assets'), group: 'Navegação' },
+        { label: 'Cautelas', icon: HardHat, action: () => navigate('/app/checkouts'), group: 'Navegação' },
+        { label: 'Obras & Locais', icon: MapPin, action: () => navigate('/app/locations'), group: 'Navegação' },
+        { label: 'Impressão', icon: Printer, action: () => navigate('/app/bulk-print'), group: 'Navegação' },
+        { label: 'Usuários', icon: Users, action: () => navigate('/app/admin'), group: 'Navegação' },
+        { label: 'Relatórios', icon: FileText, action: () => navigate('/app/reports'), group: 'Navegação' },
+        { label: 'Inteligência Artificial', icon: Brain, action: () => navigate('/app/ai-insights'), group: 'Navegação' },
         { label: 'Alternar Tema', icon: theme === 'dark' ? Sun : Moon, action: toggleTheme, group: 'Ações' },
-        { label: 'Configurações', icon: Settings, action: () => navigate('/profile'), group: 'Ações' },
+        { label: 'Configurações', icon: Settings, action: () => navigate('/app/profile'), group: 'Ações' },
         { label: 'Sair do Sistema', icon: LogOut, action: logout, group: 'Ações', className: 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20' },
     ];
 

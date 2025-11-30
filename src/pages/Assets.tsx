@@ -112,7 +112,7 @@ export const AssetsPage: React.FC = () => {
     setIsScannerOpen(false);
     const found = assets.find(a => a.asset_tag === code || a.id === code);
     if (found) {
-      navigate(`/assets/${found.id}`);
+      navigate(`/app/assets/${found.id}`);
     } else {
       toast.warning(`Ativo com código ${code} não encontrado.`);
     }
@@ -229,7 +229,7 @@ export const AssetsPage: React.FC = () => {
                       <TableRow
                         key={asset.id}
                         className="text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                        onClick={() => navigate(`/assets/${asset.id}`)}
+                        onClick={() => navigate(`/app/assets/${asset.id}`)}
                       >
                         <TableCell>
                           {asset.image ? (
@@ -307,12 +307,12 @@ export const AssetsPage: React.FC = () => {
                         <Button size="sm" variant="ghost" onClick={(e) => openTransferModal(e, asset)}>
                           <ArrowRightLeft className="h-4 w-4 text-blue-600" />
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => navigate(`/assets/${asset.id}`)}>
+                        <Button size="sm" variant="ghost" onClick={() => navigate(`/app/assets/${asset.id}`)}>
                           <ExternalLink className="h-4 w-4" />
                         </Button>
                       </>
                     }
-                    onClick={() => navigate(`/assets/${asset.id}`)}
+                    onClick={() => navigate(`/app/assets/${asset.id}`)}
                   />
                 ))}
                 {paginatedAssets.length === 0 && (

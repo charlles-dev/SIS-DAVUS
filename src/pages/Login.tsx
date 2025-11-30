@@ -21,7 +21,7 @@ export const LoginPage: React.FC = () => {
     try {
       const response = await AuthService.login(username);
       login(response);
-      navigate('/');
+      navigate('/app/home');
     } catch (error) {
       toast.error('Login falhou. Verifique suas credenciais.');
       setLoading(false);

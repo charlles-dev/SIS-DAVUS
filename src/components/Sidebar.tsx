@@ -32,19 +32,19 @@ export const Sidebar: React.FC = () => {
     const [isCollapsed, setIsCollapsed] = React.useState(false);
 
     const links = [
-        { to: '/home', icon: Home, label: 'Início' },
-        { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-        { to: '/inventory', icon: Package, label: 'Estoque' },
-        { to: '/movements', icon: History, label: 'Movimentações' },
-        { to: '/purchases', icon: ShoppingCart, label: 'Compras' },
-        { to: '/assets', icon: Wrench, label: 'Patrimônio' },
-        { to: '/maintenance-board', icon: Settings, label: 'Manutenção' },
-        { to: '/checkouts', icon: HardHat, label: 'Cautelas' },
-        { to: '/locations', icon: MapPin, label: 'Obras & Locais' },
-        { to: '/bulk-print', icon: Printer, label: 'Impressão' },
-        { to: '/admin', icon: Users, label: 'Usuários' },
-        { to: '/admin-tools', icon: Settings, label: 'Ferramentas Admin' },
-        { to: '/reports', icon: FileText, label: 'Relatórios' },
+        { to: '/app/home', icon: Home, label: 'Início' },
+        { to: '/app/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        { to: '/app/inventory', icon: Package, label: 'Estoque' },
+        { to: '/app/movements', icon: History, label: 'Movimentações' },
+        { to: '/app/purchases', icon: ShoppingCart, label: 'Compras' },
+        { to: '/app/assets', icon: Wrench, label: 'Patrimônio' },
+        { to: '/app/maintenance-board', icon: Settings, label: 'Manutenção' },
+        { to: '/app/checkouts', icon: HardHat, label: 'Cautelas' },
+        { to: '/app/locations', icon: MapPin, label: 'Obras & Locais' },
+        { to: '/app/bulk-print', icon: Printer, label: 'Impressão' },
+        { to: '/app/admin', icon: Users, label: 'Usuários' },
+        { to: '/app/admin-tools', icon: Settings, label: 'Ferramentas Admin' },
+        { to: '/app/reports', icon: FileText, label: 'Relatórios' },
 
     ];
 

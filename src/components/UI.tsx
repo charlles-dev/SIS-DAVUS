@@ -48,7 +48,7 @@ export const Breadcrumbs: React.FC = () => {
 
   return (
     <nav className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
-      <Link to="/" className="hover:text-davus-primary transition-colors">Home</Link>
+      <Link to="/app/home" className="hover:text-davus-primary transition-colors">Home</Link>
       {pathnames.map((value, index) => {
         const to = `/${pathnames.slice(0, index + 1).join('/')}`;
         const isLast = index === pathnames.length - 1;

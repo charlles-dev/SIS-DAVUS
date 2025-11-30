@@ -30,14 +30,14 @@ export const HomePage: React.FC = () => {
         setIsScannerOpen(false);
         // Navigate to asset details or search
         // Assuming the code is the asset ID or Tag
-        navigate(`/assets?search=${code}`);
+        navigate(`/app/assets?search=${code}`);
     };
 
     const quickActions = [
-        { label: 'Nova Cautela', icon: PlusCircle, path: '/checkouts', color: 'text-blue-500' },
-        { label: 'Buscar Ativo', icon: Search, path: '/assets', color: 'text-purple-500' },
+        { label: 'Nova Cautela', icon: PlusCircle, path: '/app/checkouts', color: 'text-blue-500' },
+        { label: 'Buscar Ativo', icon: Search, path: '/app/assets', color: 'text-purple-500' },
         { label: 'Escanear QR', icon: QrCode, action: () => setIsScannerOpen(true), color: 'text-davus-primary' },
-        { label: 'Novo Item', icon: Package, path: '/inventory', color: 'text-green-500' },
+        { label: 'Novo Item', icon: Package, path: '/app/inventory', color: 'text-green-500' },
     ];
 
     // ...

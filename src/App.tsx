@@ -12,6 +12,7 @@ import { ServerAwakeGuard } from '@/components/feedback/ServerAwakeGuard';
 
 // Lazy load pages
 const HomePage = lazy(() => import('@/pages/Home').then(module => ({ default: module.HomePage })));
+const LandingPage = lazy(() => import('@/pages/Landing').then(module => ({ default: module.LandingPage })));
 const LoginPage = lazy(() => import('@/pages/Login').then(module => ({ default: module.LoginPage })));
 const ForgotPasswordPage = lazy(() => import('@/pages/AuthPages').then(module => ({ default: module.ForgotPasswordPage })));
 const DashboardPage = lazy(() => import('@/pages/Dashboard').then(module => ({ default: module.DashboardPage })));
@@ -61,13 +62,14 @@ const App: React.FC = () => {
                   <Routes>
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                    <Route path="/" element={<LandingPage />} />
 
-                    <Route path="/" element={
+                    <Route path="/app" element={
                       <ProtectedRoute>
                         <MainLayout />
                       </ProtectedRoute>
                     }>
-                      <Route index element={<Navigate to="/home" replace />} />
+                      <Route index element={<Navigate to="/app/home" replace />} />
                       <Route path="home" element={<HomePage />} />
                       <Route path="dashboard" element={<DashboardPage />} />
                       <Route path="profile" element={<ProfilePage />} />
