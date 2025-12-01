@@ -61,6 +61,8 @@ export const Sidebar: React.FC = () => {
                 variants={sidebarVariants}
                 animate={isCollapsed ? 'collapsed' : 'open'}
                 initial='open'
+                role="navigation"
+                aria-label="Menu principal"
             >
                 {/* Header */}
                 <div className={`p-4 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} border-b border-[#2b2b2b]`}>
@@ -82,7 +84,7 @@ export const Sidebar: React.FC = () => {
                 </div>
 
                 {/* Navigation */}
-                <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1 custom-scrollbar">
+                <nav id="sidebar-nav" className="flex-1 overflow-y-auto py-4 px-2 space-y-1 custom-scrollbar" aria-label="Navegação de módulos">
                     {filteredLinks.map((link) => {
                         const isActive = location.pathname.startsWith(link.to);
                         return (
@@ -90,6 +92,7 @@ export const Sidebar: React.FC = () => {
                                 key={link.to}
                                 to={link.to}
                                 className={`relative flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors duration-200 group ${isActive ? 'text-white' : 'text-gray-400 hover:bg-[#2b2b2b] hover:text-white'}`}
+                                aria-current={isActive ? 'page' : undefined}
                             >
                                 {isActive && (
                                     <motion.div
@@ -146,6 +149,9 @@ export const Sidebar: React.FC = () => {
                 <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
                     className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 bg-[#2b2b2b] text-gray-400 hover:text-white rounded-full p-1 border border-[#181a1c] shadow-lg z-50"
+                    aria-label={isCollapsed ? 'Expandir menu' : 'Recolher menu'}
+                    aria-expanded={!isCollapsed}
+                    aria-controls="sidebar-nav"
                 >
                     {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
                 </button>

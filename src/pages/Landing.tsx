@@ -11,9 +11,14 @@ import {
     CheckCircle2
 } from 'lucide-react';
 import { DavusLogo } from '../components/UI';
+import { getVariant, trackEvent } from '@/lib/ab';
 
 export const LandingPage: React.FC = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const ctaVariant = getVariant('landing-cta', ['A','B']);
+  React.useEffect(() => {
+    trackEvent('landing-cta', ctaVariant, 'view');
+  }, [ctaVariant]);
 
     const features = [
         {
@@ -46,10 +51,11 @@ export const LandingPage: React.FC = () => {
                     <DavusLogo className="h-16 w-auto" />
                 </div>
                 <button
-                    onClick={() => navigate('/login')}
+                    onClick={() => { trackEvent('landing-cta', ctaVariant, 'navbar-cta-click'); navigate('/login'); }}
+                    aria-label={ctaVariant === 'A' ? 'Área do Cliente' : 'Entrar no Sistema'}
                     className="px-6 py-2 bg-white dark:bg-gray-800 text-davus-primary font-semibold rounded-full shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-davus-primary"
                 >
-                    Área do Cliente
+                    {ctaVariant === 'A' ? 'Área do Cliente' : 'Entrar no Sistema'}
                 </button>
             </nav>
 
@@ -70,10 +76,11 @@ export const LandingPage: React.FC = () => {
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4">
                             <button
-                                onClick={() => navigate('/login')}
+                                onClick={() => { trackEvent('landing-cta', ctaVariant, 'hero-cta-click'); navigate('/login'); }}
+                                aria-label={ctaVariant === 'A' ? 'Acessar Sistema' : 'Entrar no Sistema'}
                                 className="px-8 py-4 bg-davus-primary text-white font-bold rounded-full shadow-lg hover:bg-blue-700 hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 group"
                             >
-                                Acessar Sistema
+                                {ctaVariant === 'A' ? 'Acessar Sistema' : 'Entrar no Sistema'}
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                             </button>
                             <button className="px-8 py-4 bg-transparent border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-full hover:border-davus-primary hover:text-davus-primary transition-all duration-300">

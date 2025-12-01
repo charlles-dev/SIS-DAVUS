@@ -11,6 +11,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { PWAInstallPrompt } from '@/components/pwa/PWAInstallPrompt';
 import { PWAUpdateToast } from '@/components/pwa/PWAUpdateToast';
+import { DiagnosticsService } from '@/api/services';
 
 // Lazy load pages
 const HomePage = lazy(() => import('@/pages/Home').then(module => ({ default: module.HomePage })));
@@ -82,6 +83,37 @@ const App: React.FC = () => {
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [initTheme, setTheme]);
+
+  useEffect(() => {
+    const prefetch = () => {
+      import('@/pages/Dashboard');
+      import('@/pages/Assets');
+      import('@/pages/Inventory');
+      import('@/pages/Locations');
+    };
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(prefetch, { timeout: 2000 });
+    } else {
+      setTimeout(prefetch, 1500);
+    }
+  }, []);
+
+  useEffect(() => {
+    const check = async () => {
+      const res = await DiagnosticsService.ping();
+      if (!res.ok) {
+        const msg = res.details ? `Banco indisponível: ${res.details}` : 'Banco indisponível';
+        // No need to block UI; just inform
+        // Using toaster for user feedback
+        // Avoid spamming: only once on startup
+        // Sonner already mounted
+        // eslint-disable-next-line
+        // @ts-ignore
+        import('sonner').then(({ toast }) => toast.error(msg));
+      }
+    };
+    check();
+  }, []);
 
   return (
     <ErrorBoundary>

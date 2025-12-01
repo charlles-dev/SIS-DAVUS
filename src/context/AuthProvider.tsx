@@ -23,8 +23,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         let mounted = true;
 
         const initializeAuth = async () => {
+            console.log('Auth: Initializing...');
             try {
+                console.log('Auth: Getting session...');
                 const { data: { session } } = await supabase.auth.getSession();
+                console.log('Auth: Session retrieved', session ? 'User found' : 'No user');
 
                 if (session?.user) {
                     // Fetch profile to get role and status
@@ -34,8 +37,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         .eq('id', session.user.id)
                         .single();
 
-                    if (error || !profile) {
+                    if (error) {
                         console.error('Error fetching profile:', error);
+                        // Do NOT logout on generic errors (network, etc)
+                        // Just warn and potentially let the app run with limited info or retry
+                        toast.error('Erro ao carregar perfil. Algumas funcionalidades podem estar indisponíveis.');
+                    } else if (!profile) {
+                        // Profile explicitly missing (deleted)
+                        console.error('Profile not found for user');
                         await supabase.auth.signOut();
                         logout();
                     } else if (!profile.is_active) {
@@ -59,39 +68,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         });
                     }
                 } else {
-                    // No session, ensure store is cleared
+                    if (user && user.id) {
+                        setLoading(false);
+                        return;
+                    }
                     logout();
                 }
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Auth initialization error:', error);
-                logout();
+                if (user && user.id) {
+                    // If we have a cached user, let them in even if verification failed
+                    setLoading(false);
+                } else {
+                    logout();
+                }
             } finally {
                 if (mounted) setLoading(false);
             }
         };
 
-        // Safety timeout to prevent infinite loading
-        const timeoutId = setTimeout(() => {
-            if (mounted && loading) {
-                console.warn('Auth initialization timed out, forcing logout.');
-                toast.error('Tempo limite de conexão excedido. Por favor, faça login novamente.');
-                logout();
-                setLoading(false);
-            }
-        }, 10000); // Increased to 10 seconds to be very lenient
-
-        initializeAuth().finally(() => clearTimeout(timeoutId));
+        initializeAuth();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN' && session?.user) {
-                // Logic handled by initializeAuth mostly, but good for fresh logins
-                // We can re-fetch profile here to be safe or rely on the login component to have set it.
-                // For persistence, initializeAuth does the heavy lifting on load.
-                // This listener is more for when the user explicitly logs in/out in the current tab.
-
-                // However, to avoid double fetching, we might just let the login component handle the initial store set
-                // and this listener just ensures consistency.
-                // But for simplicity and robustness, let's just ensure we have the profile.
                 const { data: profile } = await supabase
                     .from('profiles')
                     .select('*')
@@ -173,11 +172,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
     }, [user?.id, logout, login, user]);
 
+    // Show slow connection message if loading takes too long
+    const [showSlowConnectionMsg, setShowSlowConnectionMsg] = useState(false);
+
+    useEffect(() => {
+        let timeout: NodeJS.Timeout;
+        if (loading) {
+            timeout = setTimeout(() => {
+                setShowSlowConnectionMsg(true);
+            }, 5000); // Show message after 5s
+        }
+        return () => clearTimeout(timeout);
+    }, [loading]);
+
+    const handleReset = () => {
+        console.warn('User triggered manual reset');
+        localStorage.clear();
+        window.location.reload();
+    };
+
     return (
         <AuthContext.Provider value={{ loading }}>
             {loading ? (
-                <div className="flex items-center justify-center h-screen bg-gray-50 dark:bg-gray-900">
+                <div className="flex flex-col items-center justify-center h-screen bg-gray-50 dark:bg-gray-900 gap-4">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-davus-primary"></div>
+                    <div className="text-center px-4">
+                        <p className="text-gray-600 dark:text-gray-400 font-medium">Carregando...</p>
+                        {showSlowConnectionMsg && (
+                            <div className="mt-4 flex flex-col items-center gap-3 animate-fade-in-up">
+                                <p className="text-sm text-amber-600 dark:text-amber-500">
+                                    A conexão está lenta ou o servidor não está respondendo.
+                                </p>
+                                <button
+                                    onClick={handleReset}
+                                    className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm"
+                                >
+                                    Reiniciar Aplicação
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             ) : (
                 children

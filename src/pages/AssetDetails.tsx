@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Calendar, DollarSign, Wrench, HardHat, FileText, Printer, QrCode } from 'lucide-react';
 import { Button, Card, CardContent, CardHeader, CardTitle, Badge } from '../components/UI';
 import { AssetService } from '@/api/services';
-import { Asset } from '@/types/types';
+import { Asset, Location } from '@/types/types';
 
 export const AssetDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -13,10 +13,27 @@ export const AssetDetailsPage: React.FC = () => {
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [locations, setLocations] = useState<Location[]>([]);
 
   useEffect(() => {
     if (id) loadData(id);
   }, [id]);
+
+  useEffect(() => {
+    AssetService.getLocations().then(setLocations).catch(() => {});
+  }, []);
+
+  const getLocationName = (locId?: string) => {
+    if (!locId) return 'Sem Local';
+    const loc = locations.find(l => l.id === locId);
+    return loc?.name || 'Sem Local';
+  };
+  const getLocationTooltip = (locId?: string) => {
+    const loc = locations.find(l => l.id === locId);
+    if (!loc) return 'Local não definido';
+    const parts = [loc.name, loc.address, loc.manager].filter(Boolean);
+    return parts.join(' • ');
+  };
 
   const loadData = async (assetId: string) => {
     try {
@@ -89,7 +106,10 @@ export const AssetDetailsPage: React.FC = () => {
                 </div>
                 <div className="flex justify-between border-b pb-2 dark:border-gray-700">
                   <span className="text-gray-500 dark:text-gray-400 text-sm">Local Atual</span>
-                  <span className="font-medium flex items-center gap-1 dark:text-gray-200"><MapPin size={14} /> {asset.location_id}</span>
+                  <span className="font-medium flex items-center gap-1 dark:text-gray-200" title={getLocationTooltip(asset.location_id)}>
+                    <MapPin size={14} />
+                    <span className="font-medium text-gray-900 dark:text-gray-200">{getLocationName(asset.location_id)}</span>
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500 dark:text-gray-400 text-sm">Valor Compra</span>

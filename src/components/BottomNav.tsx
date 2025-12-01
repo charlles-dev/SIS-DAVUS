@@ -117,7 +117,7 @@ export const BottomNav: React.FC = () => {
     };
 
     return (
-        <div ref={navRef} className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+        <div ref={navRef} className="fixed bottom-0 left-0 right-0 z-50 md:hidden" role="navigation" aria-label="Navegação inferior">
             {/* Sub-menu Overlay */}
             <AnimatePresence>
                 {activeGroup && (
@@ -150,7 +150,7 @@ export const BottomNav: React.FC = () => {
             </AnimatePresence>
 
             {/* Main Bar */}
-            <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 pb-safe px-4 py-2 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+            <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 pb-safe px-4 py-2 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]" role="menubar">
                 {navGroups.map((group) => {
                     const isActive = isGroupActive(group);
                     const isOpen = activeGroup === group.id;
@@ -165,6 +165,10 @@ export const BottomNav: React.FC = () => {
                             onClick={() => handleGroupClick(group.id)}
                             className={`relative flex flex-col items-center justify-center w-16 h-14 rounded-xl transition-all duration-300 ${isActive || isOpen ? 'text-davus-primary' : 'text-gray-500 dark:text-gray-400'
                                 }`}
+                            role="menuitem"
+                            aria-haspopup="true"
+                            aria-expanded={isOpen}
+                            aria-label={`Abrir seção ${group.label}`}
                         >
                             {isActive && (
                                 <motion.div
@@ -177,7 +181,7 @@ export const BottomNav: React.FC = () => {
 
                             <div className="relative z-10 flex flex-col items-center">
                                 <group.icon size={24} strokeWidth={isActive || isOpen ? 2.5 : 2} />
-                                <span className="text-[10px] font-medium mt-1">{group.label}</span>
+                                <span className="text-[10px] font-medium mt-1" aria-hidden>{group.label}</span>
                             </div>
 
                             {/* Active Dot for sub-items */}

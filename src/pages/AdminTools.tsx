@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  ShieldCheck, Upload, FileSpreadsheet, Search 
+import {
+  ShieldCheck, Upload, FileSpreadsheet
 } from 'lucide-react';
-import { 
-  Button, Input, Table, TableHeader, TableRow, TableHead, TableCell, 
-  Card, CardContent, CardHeader, CardTitle, Select 
+import {
+  Button, Table, TableHeader, TableRow, TableHead, TableCell,
+  Card, CardContent, CardHeader, CardTitle, Select
 } from '../components/UI';
 import { AdminService } from '@/api/services';
 import { AuditLog } from '@/types/types';
@@ -19,21 +19,24 @@ export const AdminToolsPage: React.FC = () => {
         <p className="text-gray-500 dark:text-gray-400">Auditoria e gestão de dados em massa.</p>
       </div>
 
-      <div className="flex gap-2 border-b border-gray-200 dark:border-gray-800">
-        <button 
+      <div className="flex gap-2 border-b border-gray-200 dark:border-gray-800" role="tablist" aria-label="Ferramentas">
+        <button
           onClick={() => setActiveTab('audit')}
           className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'audit' ? 'border-davus-primary text-davus-primary' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
+          role="tab" aria-selected={activeTab === 'audit'}
         >
           <ShieldCheck className="inline-block w-4 h-4 mr-2" />
           Logs de Auditoria
         </button>
-        <button 
+        <button
           onClick={() => setActiveTab('import')}
           className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === 'import' ? 'border-davus-primary text-davus-primary' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
+          role="tab" aria-selected={activeTab === 'import'}
         >
           <Upload className="inline-block w-4 h-4 mr-2" />
           Importação de Dados
         </button>
+
       </div>
 
       {activeTab === 'audit' ? <AuditTab /> : <ImportTab />}
@@ -70,11 +73,10 @@ const AuditTab: React.FC = () => {
                 <TableCell className="text-xs text-gray-500 dark:text-gray-400">{new Date(log.timestamp).toLocaleString()}</TableCell>
                 <TableCell className="font-medium text-davus-dark dark:text-gray-100">{log.user}</TableCell>
                 <TableCell>
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                    log.action === 'CREATE' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 
-                    log.action === 'DELETE' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 
-                    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                  }`}>{log.action}</span>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${log.action === 'CREATE' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                    log.action === 'DELETE' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                      'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                    }`}>{log.action}</span>
                 </TableCell>
                 <TableCell className="text-davus-dark dark:text-gray-200">{log.resource}</TableCell>
                 <TableCell className="text-sm text-gray-600 dark:text-gray-400">{log.details}</TableCell>
@@ -87,11 +89,13 @@ const AuditTab: React.FC = () => {
   );
 };
 
+
+
 const ImportTab: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [type, setType] = useState('INVENTORY');
   const [status, setStatus] = useState<'IDLE' | 'UPLOADING' | 'DONE'>('IDLE');
-  const [result, setResult] = useState<{success: number, errors: number} | null>(null);
+  const [result, setResult] = useState<{ success: number, errors: number } | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) setFile(e.target.files[0]);
@@ -114,7 +118,7 @@ const ImportTab: React.FC = () => {
       <CardContent className="space-y-6">
         <div>
           <label className="block text-sm font-medium mb-2 text-davus-dark dark:text-gray-200">Tipo de Dados</label>
-          <Select 
+          <Select
             value={type}
             onChange={(e) => setType(e.target.value)}
             options={[
@@ -141,11 +145,11 @@ const ImportTab: React.FC = () => {
 
         {status === 'DONE' && result && (
           <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md p-4">
-             <h4 className="font-bold text-green-800 dark:text-green-400 mb-2">Processamento Concluído</h4>
-             <ul className="list-disc pl-5 text-sm text-green-700 dark:text-green-300">
-               <li>Registros criados: {result.success}</li>
-               <li>Erros encontrados: {result.errors}</li>
-             </ul>
+            <h4 className="font-bold text-green-800 dark:text-green-400 mb-2">Processamento Concluído</h4>
+            <ul className="list-disc pl-5 text-sm text-green-700 dark:text-green-300">
+              <li>Registros criados: {result.success}</li>
+              <li>Erros encontrados: {result.errors}</li>
+            </ul>
           </div>
         )}
       </CardContent>

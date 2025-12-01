@@ -22,6 +22,11 @@ import {
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/useAuthStore';
 
+const withTimeout = async <T>(promise: PromiseLike<T>, ms = 10000): Promise<T> => {
+  const timeout = new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), ms));
+  return Promise.race([promise, timeout]);
+};
+
 export const AuthService = {
   login: async (username: string, password?: string): Promise<LoginResponse> => {
     const loginPromise = async () => {
@@ -80,15 +85,23 @@ export const AuthService = {
     };
 
     // Race between login and a timeout
+    let timeoutId: NodeJS.Timeout;
     const timeoutPromise = new Promise<LoginResponse>((_, reject) => {
-      setTimeout(() => {
-        console.error('Login timed out after 10s');
-        reject(new Error('Tempo limite de conexão excedido. Verifique sua internet.'));
-      }, 10000);
+      timeoutId = setTimeout(() => {
+        console.error('Login timed out after 20s');
+        reject(new Error('Conexão lenta ou servidor em wake-up. Tente novamente em instantes.'));
+      }, 20000);
     });
 
-    console.log('Starting login race...');
-    return Promise.race([loginPromise(), timeoutPromise]);
+    try {
+      console.log('Starting login race...');
+      const result = await Promise.race([loginPromise(), timeoutPromise]);
+      clearTimeout(timeoutId!); // Clear timeout on success
+      return result;
+    } catch (error) {
+      clearTimeout(timeoutId!); // Clear timeout on error
+      throw error;
+    }
   },
   resetPassword: async (email: string): Promise<void> => {
     const { error } = await supabase.auth.resetPasswordForEmail(email);
@@ -138,10 +151,10 @@ export const AuthService = {
 
 export const InventoryService = {
   getProducts: async (): Promise<Product[]> => {
-    const { data, error } = await supabase
+    const { data, error } = await withTimeout(supabase
       .from('products')
       .select('*')
-      .order('name');
+      .order('name'));
     if (error) throw error;
     return data || [];
   },
@@ -266,19 +279,19 @@ export const PurchaseService = {
 
 export const AssetService = {
   getAssets: async (): Promise<Asset[]> => {
-    const { data, error } = await supabase
+    const { data, error } = await withTimeout(supabase
       .from('assets')
       .select('*')
-      .order('name');
+      .order('name'));
     if (error) throw error;
     return data || [];
   },
   getAssetById: async (id: string): Promise<Asset | undefined> => {
-    const { data, error } = await supabase
+    const { data, error } = await withTimeout(supabase
       .from('assets')
       .select('*')
       .eq('id', id)
-      .single();
+      .single());
     if (error) throw error;
     return data;
   },
@@ -361,11 +374,11 @@ export const AssetService = {
     return history.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   },
   getLocations: async (): Promise<{ id: string, name: string }[]> => {
-    const { data, error } = await supabase
+    const { data, error } = await withTimeout(supabase
       .from('locations')
       .select('id, name')
       .eq('active', true)
-      .order('name');
+      .order('name'));
     if (error) throw error;
     return data || [];
   },
@@ -467,10 +480,10 @@ export const AssetService = {
 
 export const LocationService = {
   getLocations: async (): Promise<Location[]> => {
-    const { data, error } = await supabase
+    const { data, error } = await withTimeout(supabase
       .from('locations')
       .select('*')
-      .order('name');
+      .order('name'));
 
     if (error) throw error;
     return data || [];
@@ -571,67 +584,88 @@ export const ReportService = {
     return [];
   },
   generateReport: async (type: ReportType): Promise<void> => {
-    console.log('Report generation requested:', type);
-    // Placeholder: Client-side generation or Edge Function would go here
-    alert('Funcionalidade de relatórios será implementada em breve.');
+    alert('Relatórios serão implementados em breve.');
   }
 };
 
 export const DashboardService = {
   getSummary: async (): Promise<DashboardSummary> => {
-    // Parallel queries for dashboard stats
-    const [
-      { count: lowStockCount },
-      { count: maintenanceCount },
-      { data: assets },
-      { data: maintenanceOrders },
-      { data: locations }
-    ] = await Promise.all([
-      supabase.from('products').select('*', { count: 'exact', head: true }).lt('current_stock', 10), // Assuming 10 is global threshold or use filter
-      supabase.from('assets').select('*', { count: 'exact', head: true }).eq('status', AssetStatus.MAINTENANCE),
-      supabase.from('assets').select('purchase_value, location_id'),
-      supabase.from('maintenance_orders').select('cost, opened_at'),
-      supabase.from('locations').select('id, name')
-    ]);
-
-    // Calculate total asset value
-    const totalAssetValue = assets?.reduce((sum, a) => sum + (Number(a.purchase_value) || 0), 0) || 0;
-
-    // Calculate maintenance cost for current month
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    const maintenanceCostMonth = maintenanceOrders?.reduce((sum, m) => {
-      const date = new Date(m.opened_at);
-      if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
-        return sum + (Number(m.cost) || 0);
+    try {
+      const cachedRaw = localStorage.getItem('dashboard_summary');
+      if (cachedRaw) {
+        const cached = JSON.parse(cachedRaw);
+        if (cached && cached.ts && Date.now() - cached.ts < 60000) {
+          return cached.data as DashboardSummary;
+        }
       }
-      return sum;
-    }, 0) || 0;
+    } catch (_) { }
+    try {
+      const [
+        { count: lowStockCount },
+        { count: maintenanceCount },
+        { data: assets },
+        { data: maintenanceOrders },
+        { data: locations }
+      ] = await Promise.all([
+        supabase.from('products').select('*', { count: 'exact', head: true }).lt('current_stock', 10),
+        supabase.from('assets').select('*', { count: 'exact', head: true }).eq('status', AssetStatus.MAINTENANCE),
+        supabase.from('assets').select('purchase_value, location_id'),
+        supabase.from('maintenance_orders').select('cost, opened_at'),
+        supabase.from('locations').select('id, name')
+      ]);
 
-    // Calculate location distribution
-    const locationMap = new Map<string, number>();
-    assets?.forEach(a => {
-      if (a.location_id) {
-        locationMap.set(a.location_id, (locationMap.get(a.location_id) || 0) + 1);
+      const totalAssetValue = assets?.reduce((sum, a) => sum + (Number(a.purchase_value) || 0), 0) || 0;
+
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      const maintenanceCostMonth = maintenanceOrders?.reduce((sum, m) => {
+        const date = new Date(m.opened_at);
+        if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+          return sum + (Number(m.cost) || 0);
+        }
+        return sum;
+      }, 0) || 0;
+
+      const locationMap = new Map<string, number>();
+      assets?.forEach(a => {
+        if (a.location_id) {
+          locationMap.set(a.location_id, (locationMap.get(a.location_id) || 0) + 1);
+        }
+      });
+
+      const locationDistribution = locations?.map(l => ({
+        location: l.name,
+        count: locationMap.get(l.id) || 0
+      })) || [];
+
+      const result = {
+        alerts: {
+          low_stock_count: lowStockCount || 0,
+          maintenance_count: maintenanceCount || 0
+        },
+        financial: {
+          total_asset_value: totalAssetValue,
+          maintenance_cost_month: maintenanceCostMonth
+        },
+        location_distribution: locationDistribution
+      };
+      try {
+        localStorage.setItem('dashboard_summary', JSON.stringify({ ts: Date.now(), data: result }));
+      } catch (_) { }
+      return result;
+    } catch (err: any) {
+      const msg = String(err?.message || '').toLowerCase();
+      if (err?.name === 'AbortError' || msg.includes('aborted')) {
+        console.warn('Dashboard requests aborted (likely navigation or SW update). Returning defaults.');
+      } else {
+        console.warn('Dashboard summary failed, returning defaults:', err);
       }
-    });
-
-    const locationDistribution = locations?.map(l => ({
-      location: l.name,
-      count: locationMap.get(l.id) || 0
-    })) || [];
-
-    return {
-      alerts: {
-        low_stock_count: lowStockCount || 0,
-        maintenance_count: maintenanceCount || 0
-      },
-      financial: {
-        total_asset_value: totalAssetValue,
-        maintenance_cost_month: maintenanceCostMonth
-      },
-      location_distribution: locationDistribution
-    };
+      return {
+        alerts: { low_stock_count: 0, maintenance_count: 0 },
+        financial: { total_asset_value: 0, maintenance_cost_month: 0 },
+        location_distribution: []
+      };
+    }
   },
   getNotifications: async (): Promise<Notification[]> => {
     // Generate notifications dynamically from data
@@ -679,5 +713,19 @@ export const DashboardService = {
   },
   markAsRead: async (): Promise<void> => {
     // No-op since notifications are dynamic
+  }
+};
+export const DiagnosticsService = {
+  ping: async (): Promise<{ ok: boolean; details?: string }> => {
+    try {
+      const url = (import.meta as any).env.VITE_SUPABASE_URL;
+      const key = (import.meta as any).env.VITE_SUPABASE_ANON_KEY;
+      if (!url || !key) return { ok: false, details: 'Credenciais ausentes' };
+      const { error } = await withTimeout(supabase.from('profiles').select('id', { count: 'exact', head: true }).limit(1), 5000);
+      if (error) return { ok: false, details: error.message };
+      return { ok: true };
+    } catch (e: any) {
+      return { ok: false, details: e?.message || 'Falha desconhecida' };
+    }
   }
 };

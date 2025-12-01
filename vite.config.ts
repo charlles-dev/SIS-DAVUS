@@ -62,6 +62,7 @@ export default defineConfig(({ mode }) => {
         },
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,json}'],
+          navigateFallback: 'offline.html',
           runtimeCaching: [
             {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -90,11 +91,57 @@ export default defineConfig(({ mode }) => {
                   statuses: [0, 200]
                 }
               }
+            },
+            {
+              urlPattern: /^https:\/\/davus-backend\.onrender\.com\/api\/v1\/.*$/i,
+              handler: 'StaleWhileRevalidate',
+              method: 'GET',
+              options: {
+                cacheName: 'api-cache',
+                expiration: {
+                  maxEntries: 50,
+                  maxAgeSeconds: 60 * 10
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              }
+            },
+            {
+              urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/v1\/object\/public\/.*$/i,
+              handler: 'CacheFirst',
+              method: 'GET',
+              options: {
+                cacheName: 'supabase-storage-cache',
+                expiration: {
+                  maxEntries: 100,
+                  maxAgeSeconds: 60 * 60 * 24 * 30
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              }
             }
           ]
         }
       })
     ],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            react: ['react', 'react-dom'],
+            router: ['react-router-dom'],
+            query: ['@tanstack/react-query'],
+            supabase: ['@supabase/supabase-js'],
+            charts: ['recharts'],
+            html2canvas: ['html2canvas'],
+            icons: ['lucide-react'],
+            workbox: ['workbox-window']
+          }
+        }
+      }
+    },
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { Plus, QrCode, MapPin, Search, ArrowRightLeft, ExternalLink, Image as ImageIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -11,7 +11,7 @@ import {
 } from '../components/UI';
 import { MobileCard } from '../components/MobileCard';
 import { ImageUpload } from '../components/Shared';
-import { QRScanner } from '../components/QRScanner';
+const QRScannerLazy = React.lazy(() => import('../components/QRScanner').then(m => ({ default: m.QRScanner })));
 import { useAssets } from '../hooks/useAssets';
 import { Asset, AssetStatus, AssetFormValues } from '@/types/types';
 import { assetSchema } from '@/lib/schemas';
@@ -138,6 +138,17 @@ export const AssetsPage: React.FC = () => {
 
   const statusOptions = Object.values(AssetStatus).map(s => ({ value: s, label: s }));
   const locationOptions = locations.map(l => ({ value: l.id, label: l.name }));
+  const getLocationName = (id?: string) => {
+    if (!id) return 'Sem Local';
+    const loc = locations.find(l => l.id === id);
+    return loc?.name || 'Sem Local';
+  };
+  const getLocationTooltip = (id?: string) => {
+    const loc = locations.find(l => l.id === id);
+    if (!loc) return 'Local não definido';
+    const parts = [loc.name, loc.address, loc.manager].filter(Boolean);
+    return parts.join(' • ');
+  };
 
   return (
     <div className="space-y-6">
@@ -248,9 +259,9 @@ export const AssetsPage: React.FC = () => {
                         <TableCell className="font-medium text-davus-dark dark:text-gray-100">{asset.name}</TableCell>
                         <TableCell className="text-gray-600 dark:text-gray-400">{asset.brand}</TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400 text-xs">
+                          <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400 text-xs" title={getLocationTooltip(asset.location_id)}>
                             <MapPin className="h-3 w-3" />
-                            {asset.location_id}
+                            <span className="font-medium text-gray-900 dark:text-gray-200">{getLocationName(asset.location_id)}</span>
                           </div>
                         </TableCell>
                         <TableCell>{getStatusBadge(asset.status)}</TableCell>
@@ -297,7 +308,7 @@ export const AssetsPage: React.FC = () => {
                     image={asset.image}
                     details={[
                       { label: 'Marca', value: asset.brand },
-                      { label: 'Local', value: asset.location_id }
+                      { label: 'Local', value: getLocationName(asset.location_id) }
                     ]}
                     actions={
                       <>
@@ -358,14 +369,11 @@ export const AssetsPage: React.FC = () => {
       </Dialog>
 
       {/* Scanner Modal */}
-      {
-        isScannerOpen && (
-          <QRScanner
-            onScan={handleScan}
-            onClose={() => setIsScannerOpen(false)}
-          />
-        )
-      }
+      {isScannerOpen && (
+        <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-davus-primary"></div></div>}>
+          <QRScannerLazy onScan={handleScan} onClose={() => setIsScannerOpen(false)} />
+        </Suspense>
+      )}
 
       {/* New Asset Modal */}
       <Dialog isOpen={newAssetModalOpen} onClose={() => setNewAssetModalOpen(false)} title="Novo Ativo">
@@ -403,6 +411,8 @@ export const AssetsPage: React.FC = () => {
                 options={locationOptions}
                 {...register('location_id')}
                 error={errors.location_id?.message}
+                placeholder="Selecione a localização"
+                required
               />
               <Select
                 label="Status Inicial"
@@ -453,9 +463,9 @@ export const AssetsPage: React.FC = () => {
               </div>
               <div>
                 <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">Local Atual</label>
-                <div className="flex items-center text-sm font-medium text-davus-primary">
+                <div className="flex items-center text-sm font-medium text-davus-primary" title={getLocationTooltip(selectedAssetTransfer.location_id)}>
                   <MapPin className="h-3 w-3 mr-1" />
-                  {selectedAssetTransfer.location_id}
+                  <span className="font-medium text-gray-900 dark:text-gray-200">{getLocationName(selectedAssetTransfer.location_id)}</span>
                 </div>
               </div>
             </div>

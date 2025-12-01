@@ -1,5 +1,5 @@
 
-import React, { InputHTMLAttributes, ButtonHTMLAttributes, useState, useRef, useEffect } from 'react';
+import React, { InputHTMLAttributes, ButtonHTMLAttributes, useState, useRef, useEffect, useId } from 'react';
 import { Loader2, X, ChevronDown, Check, AlertTriangle, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, HTMLMotionProps } from 'framer-motion';
@@ -13,6 +13,8 @@ export const DavusLogo: React.FC<{ className?: string, hideSubtitle?: boolean }>
     <img
       src="/logo.png"
       alt="Davus Engenharia"
+      loading="lazy"
+      decoding="async"
       className={cn("object-contain", className)}
     />
   );
@@ -150,6 +152,9 @@ export const Button: React.FC<ButtonProps> = ({
         className
       )}
       disabled={isLoading || disabled}
+      aria-busy={isLoading ? true : undefined}
+      aria-disabled={isLoading || disabled ? true : undefined}
+      type={(props as any).type ?? 'button'}
       {...props}
     >
       {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -165,9 +170,10 @@ interface InputProps extends Omit<HTMLMotionProps<"input">, "ref"> {
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, label, error, ...props }, ref) => {
+  const inputId = useId();
   return (
     <div className="w-full space-y-1">
-      {label && <label className="text-sm font-medium text-davus-dark dark:text-gray-200 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">{label}</label>}
+      {label && <label htmlFor={(props as any).id ?? inputId} className="text-sm font-medium text-davus-dark dark:text-gray-200 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">{label}</label>}
       <motion.input
         whileFocus={{ scale: 1.01 }}
         className={cn(
@@ -176,10 +182,13 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className
           error ? "border-red-500 focus-visible:ring-red-500/50" : "",
           className
         )}
+        id={(props as any).id ?? inputId}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${(props as any).id ?? inputId}-error` : undefined}
         ref={ref}
         {...props}
       />
-      {error && <p className="text-xs text-red-500 font-medium">{error}</p>}
+      {error && <p id={`${(props as any).id ?? inputId}-error`} className="text-xs text-red-500 font-medium">{error}</p>}
     </div>
   );
 });
@@ -193,9 +202,10 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(({ className, label, error, options, placeholder, ...props }, ref) => {
+  const selectId = useId();
   return (
     <div className="w-full space-y-1">
-      {label && <label className="text-sm font-medium text-davus-dark dark:text-gray-200 leading-none">{label}</label>}
+      {label && <label htmlFor={(props as any).id ?? selectId} className="text-sm font-medium text-davus-dark dark:text-gray-200 leading-none">{label}</label>}
       <div className="relative">
         <select
           className={cn(
@@ -204,6 +214,8 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(({ classN
             error ? "border-red-500" : "",
             className
           )}
+          id={(props as any).id ?? selectId}
+          aria-invalid={error ? true : undefined}
           ref={ref}
           {...props}
         >
@@ -269,10 +281,13 @@ export const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, title, children
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", duration: 0.5 }}
             className="z-50 w-full max-w-lg scale-100 gap-4 border bg-white p-6 opacity-100 shadow-lg sm:rounded-lg md:w-full max-h-[90vh] overflow-y-auto m-4 dark:bg-gray-800 dark:border-gray-700"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="dialog-title"
           >
             <div className="flex flex-col space-y-1.5 text-center sm:text-left mb-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold leading-none tracking-tight text-gray-900 dark:text-gray-100">{title}</h2>
+                <h2 id="dialog-title" className="text-lg font-semibold leading-none tracking-tight text-gray-900 dark:text-gray-100">{title}</h2>
                 <button onClick={onClose} className="rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-davus-primary focus:ring-offset-2 dark:text-gray-400 dark:hover:text-white">
                   <X className="h-4 w-4" />
                   <span className="sr-only">Close</span>
@@ -371,7 +386,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ trigger, children }) => {
   }, []);
 
   return (
-    <div className="relative inline-block text-left" ref={dropdownRef}>
+    <div className="relative inline-block text-left" ref={dropdownRef} aria-haspopup="menu" aria-expanded={isOpen}>
       <div onClick={() => setIsOpen(!isOpen)}>{trigger}</div>
       {isOpen && (
         <motion.div

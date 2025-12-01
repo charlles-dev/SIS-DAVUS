@@ -85,3 +85,8 @@ body {
     background: rgba(148, 163, 184, 0.8);
   }
 }
+
+/* Safe area padding for bottom nav on iOS */
+.pb-safe {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}

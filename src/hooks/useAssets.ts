@@ -45,6 +45,8 @@ export const useAssets = () => {
         locations: locationsQuery.data || [],
         isLoading: assetsQuery.isLoading || locationsQuery.isLoading,
         isError: assetsQuery.isError || locationsQuery.isError,
+        errorMessage: (assetsQuery.error as any)?.message || (locationsQuery.error as any)?.message || '',
+        refetch: async () => { await Promise.all([assetsQuery.refetch(), locationsQuery.refetch()]); },
         createAsset: createAssetMutation.mutateAsync,
         transferAsset: transferAssetMutation.mutateAsync,
         isSubmitting: createAssetMutation.isPending || transferAssetMutation.isPending

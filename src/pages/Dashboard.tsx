@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { AlertTriangle, DollarSign, Wrench, MapPin, Settings, Layout } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, Button, Dialog, Checkbox } from '../components/UI';
 import { DashboardService } from '@/api/services';
+import { toast } from 'sonner';
 import { DashboardSummary } from '@/types/types';
 import { AnimatedCounter } from '../components/AnimatedCounter';
 import { DashboardIntro } from '../components/DashboardIntro';
@@ -55,9 +56,19 @@ export const DashboardPage: React.FC = () => {
     return saved ? JSON.parse(saved) : DEFAULT_WIDGETS;
   });
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    DashboardService.getSummary().then(setData);
+    const load = async () => {
+      try {
+        const summary = await DashboardService.getSummary();
+        setData(summary);
+      } catch (e: any) {
+        setError(e?.message || 'Falha ao carregar o Dashboard');
+        toast.error('Falha ao carregar dados do Dashboard');
+      }
+    };
+    load();
   }, []);
 
   useEffect(() => {
@@ -70,7 +81,19 @@ export const DashboardPage: React.FC = () => {
 
   const isVisible = (id: string) => widgets.find(w => w.id === id)?.visible;
 
-  if (!data) return <div className="p-8 text-center text-gray-500 dark:text-gray-400">Carregando indicadores...</div>;
+  if (!data) return (
+    <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+      {error ? (
+        <div className="space-y-3">
+          <div>Falha ao carregar indicadores.</div>
+          <Button variant="outline" onClick={() => {
+            setError('');
+            DashboardService.getSummary().then(setData).catch(() => {});
+          }}>Tentar novamente</Button>
+        </div>
+      ) : 'Carregando indicadores...'}
+    </div>
+  );
 
   const chartData = data.location_distribution;
 
