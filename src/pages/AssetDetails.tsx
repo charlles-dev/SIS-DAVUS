@@ -12,23 +12,43 @@ export const AssetDetailsPage: React.FC = () => {
   const [asset, setAsset] = useState<Asset | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) loadData(id);
   }, [id]);
 
   const loadData = async (assetId: string) => {
-    setLoading(true);
-    const [a, h] = await Promise.all([
-      AssetService.getAssetById(assetId),
-      AssetService.getAssetHistory(assetId)
-    ]);
-    if (a) setAsset(a);
-    setHistory(h);
-    setLoading(false);
+    try {
+      setLoading(true);
+      setError(null);
+      const [a, h] = await Promise.all([
+        AssetService.getAssetById(assetId),
+        AssetService.getAssetHistory(assetId)
+      ]);
+      if (a) {
+        setAsset(a);
+        setHistory(h);
+      } else {
+        setError('Ativo não encontrado no banco de dados.');
+      }
+    } catch (err) {
+      console.error('Erro ao carregar ativo:', err);
+      setError('Falha ao carregar detalhes do ativo. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading) return <div className="p-8 text-center text-gray-500 dark:text-gray-400">Carregando informações do ativo...</div>;
+
+  if (error) return (
+    <div className="p-8 text-center">
+      <div className="text-red-500 mb-4">{error}</div>
+      <Button variant="outline" onClick={() => navigate('/app/assets')}>Voltar para Lista</Button>
+    </div>
+  );
+
   if (!asset) return <div className="p-8 text-center">Ativo não encontrado. <Button variant="link" onClick={() => navigate('/app/assets')}>Voltar</Button></div>;
 
   return (
