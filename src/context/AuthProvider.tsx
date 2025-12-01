@@ -70,7 +70,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
         };
 
-        initializeAuth();
+        // Safety timeout to prevent infinite loading
+        const timeoutId = setTimeout(() => {
+            if (mounted && loading) {
+                console.warn('Auth initialization timed out, forcing logout.');
+                toast.error('Tempo limite de conexão excedido. Por favor, faça login novamente.');
+                logout();
+                setLoading(false);
+            }
+        }, 10000); // Increased to 10 seconds to be very lenient
+
+        initializeAuth().finally(() => clearTimeout(timeoutId));
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN' && session?.user) {
@@ -165,7 +175,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return (
         <AuthContext.Provider value={{ loading }}>
-            {!loading && children}
+            {loading ? (
+                <div className="flex items-center justify-center h-screen bg-gray-50 dark:bg-gray-900">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-davus-primary"></div>
+                </div>
+            ) : (
+                children
+            )}
         </AuthContext.Provider>
     );
 };

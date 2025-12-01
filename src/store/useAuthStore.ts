@@ -29,6 +29,18 @@ export const useAuthStore = create<AuthState>()(
         }),
         {
             name: 'auth-storage',
+            version: 1,
+            migrate: (persistedState: any, version: number) => {
+                if (version === 0) {
+                    // Force reset for version 0 to clear potentially corrupted state
+                    return {
+                        user: null,
+                        token: null,
+                        isAuthenticated: false
+                    };
+                }
+                return persistedState as AuthState;
+            },
         }
     )
 );
