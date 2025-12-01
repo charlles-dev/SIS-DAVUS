@@ -8,7 +8,6 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Toaster } from 'sonner';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
-import { ServerAwakeGuard } from '@/components/feedback/ServerAwakeGuard';
 import { PWAInstallPrompt } from '@/components/pwa/PWAInstallPrompt';
 import { PWAUpdateToast } from '@/components/pwa/PWAUpdateToast';
 
@@ -76,56 +75,54 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <ServerAwakeGuard>
-          <HashRouter>
-            <NotificationProvider>
-              <TourProvider>
-                <Toaster position="top-right" richColors />
-                <PWAUpdateToast />
-                <PWAInstallPrompt />
-                <Suspense fallback={<LoadingFallback />}>
-                  <Routes>
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                    <Route path="/" element={<LandingPage />} />
-                    <Route path="/force-change-password" element={<ForceChangePasswordPage />} />
+        <HashRouter>
+          <NotificationProvider>
+            <TourProvider>
+              <Toaster position="top-right" richColors />
+              <PWAUpdateToast />
+              <PWAInstallPrompt />
+              <Suspense fallback={<LoadingFallback />}>
+                <Routes>
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/force-change-password" element={<ForceChangePasswordPage />} />
 
-                    <Route path="/app" element={
-                      <ProtectedRoute>
-                        <MainLayout />
-                      </ProtectedRoute>
-                    }>
-                      <Route index element={<Navigate to="/app/home" replace />} />
-                      <Route path="home" element={<HomePage />} />
-                      <Route path="dashboard" element={<DashboardPage />} />
-                      <Route path="profile" element={<ProfilePage />} />
+                  <Route path="/app" element={
+                    <ProtectedRoute>
+                      <MainLayout />
+                    </ProtectedRoute>
+                  }>
+                    <Route index element={<Navigate to="/app/home" replace />} />
+                    <Route path="home" element={<HomePage />} />
+                    <Route path="dashboard" element={<DashboardPage />} />
+                    <Route path="profile" element={<ProfilePage />} />
 
-                      <Route path="inventory" element={<InventoryPage />} />
-                      <Route path="movements" element={<MovementHistoryPage />} />
-                      <Route path="purchases" element={<PurchasePage />} />
+                    <Route path="inventory" element={<InventoryPage />} />
+                    <Route path="movements" element={<MovementHistoryPage />} />
+                    <Route path="purchases" element={<PurchasePage />} />
 
-                      <Route path="assets" element={<AssetsPage />} />
-                      <Route path="assets/:id" element={<AssetDetailsPage />} />
+                    <Route path="assets" element={<AssetsPage />} />
+                    <Route path="assets/:id" element={<AssetDetailsPage />} />
 
-                      <Route path="checkouts" element={<CheckoutsPage />} />
-                      <Route path="admin" element={<AdminPage />} />
-                      <Route path="reports" element={<ReportsPage />} />
+                    <Route path="checkouts" element={<CheckoutsPage />} />
+                    <Route path="admin" element={<AdminPage />} />
+                    <Route path="reports" element={<ReportsPage />} />
 
 
-                      <Route path="locations" element={<LocationsPage />} />
-                      <Route path="maintenance-board" element={<MaintenanceBoardPage />} />
-                      <Route path="admin-tools" element={<AdminToolsPage />} />
-                      <Route path="bulk-print" element={<BulkPrintPage />} />
+                    <Route path="locations" element={<LocationsPage />} />
+                    <Route path="maintenance-board" element={<MaintenanceBoardPage />} />
+                    <Route path="admin-tools" element={<AdminToolsPage />} />
+                    <Route path="bulk-print" element={<BulkPrintPage />} />
 
-                      <Route path="unauthorized" element={<UnauthorizedPage />} />
-                      <Route path="*" element={<NotFoundPage />} />
-                    </Route>
-                  </Routes>
-                </Suspense>
-              </TourProvider>
-            </NotificationProvider>
-          </HashRouter>
-        </ServerAwakeGuard>
+                    <Route path="unauthorized" element={<UnauthorizedPage />} />
+                    <Route path="*" element={<NotFoundPage />} />
+                  </Route>
+                </Routes>
+              </Suspense>
+            </TourProvider>
+          </NotificationProvider>
+        </HashRouter>
       </QueryClientProvider>
     </ErrorBoundary>
   );
