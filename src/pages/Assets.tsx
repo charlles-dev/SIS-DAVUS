@@ -120,9 +120,9 @@ export const AssetsPage: React.FC = () => {
 
   const filteredAssets = assets.filter(asset => {
     const matchesSearch =
-      asset.name.toLowerCase().includes(searchFilter.toLowerCase()) ||
-      asset.asset_tag.toLowerCase().includes(searchFilter.toLowerCase()) ||
-      asset.brand.toLowerCase().includes(searchFilter.toLowerCase());
+      (asset.name?.toLowerCase() || '').includes(searchFilter.toLowerCase()) ||
+      (asset.asset_tag?.toLowerCase() || '').includes(searchFilter.toLowerCase()) ||
+      (asset.brand?.toLowerCase() || '').includes(searchFilter.toLowerCase());
 
     const matchesLocation = locationFilter === '' || locationFilter === 'all' || asset.location_id === locationFilter;
     const matchesStatus = statusFilter === '' || statusFilter === 'all' || asset.status === statusFilter;

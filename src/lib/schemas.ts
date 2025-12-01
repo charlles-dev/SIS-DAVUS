@@ -8,6 +8,7 @@ export const assetSchema = z.object({
   location_id: z.string().min(1, "Localização é obrigatória"),
   status: z.nativeEnum(AssetStatus),
   purchase_value: z.coerce.number().min(0, "Valor inválido"),
+  purchase_date: z.string().optional(),
   image: z.any().optional(),
 });
 
