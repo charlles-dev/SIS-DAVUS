@@ -27,7 +27,6 @@ import { Button } from './UI';
 
 export const Sidebar: React.FC = () => {
     const { user, logout } = useAuthStore();
-    const { isSidebarOpen, closeSidebar, toggleSidebar } = useUIStore();
     const location = useLocation();
     const [isCollapsed, setIsCollapsed] = React.useState(false);
 
@@ -54,32 +53,14 @@ export const Sidebar: React.FC = () => {
         collapsed: { width: 80, transition: { duration: 0.3, ease: "easeInOut" as const } }
     };
 
-    const mobileDrawerVariants = {
-        open: { x: 0, transition: { type: "spring" as const, stiffness: 300, damping: 30 } },
-        closed: { x: "-100%", transition: { type: "spring" as const, stiffness: 300, damping: 30 } }
-    };
-
     return (
         <>
-            {/* Mobile Overlay */}
-            <AnimatePresence>
-                {isSidebarOpen && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm"
-                        onClick={closeSidebar}
-                    />
-                )}
-            </AnimatePresence>
-
             {/* Sidebar Container */}
             <motion.aside
-                className={`fixed md:sticky top-0 left-0 z-50 h-screen bg-[#181a1c] border-r border-[#2b2b2b] flex flex-col`}
-                variants={window.innerWidth >= 768 ? sidebarVariants : mobileDrawerVariants}
-                animate={window.innerWidth >= 768 ? (isCollapsed ? 'collapsed' : 'open') : (isSidebarOpen ? 'open' : 'closed')}
-                initial={window.innerWidth >= 768 ? 'open' : 'closed'}
+                className={`hidden md:flex sticky top-0 left-0 z-50 h-screen bg-[#181a1c] border-r border-[#2b2b2b] flex-col`}
+                variants={sidebarVariants}
+                animate={isCollapsed ? 'collapsed' : 'open'}
+                initial='open'
             >
                 {/* Header */}
                 <div className={`p-4 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} border-b border-[#2b2b2b]`}>
@@ -98,9 +79,6 @@ export const Sidebar: React.FC = () => {
                             </motion.span>
                         )}
                     </div>
-                    <button onClick={closeSidebar} className="md:hidden text-gray-400 hover:text-white">
-                        <X size={20} />
-                    </button>
                 </div>
 
                 {/* Navigation */}
@@ -111,7 +89,6 @@ export const Sidebar: React.FC = () => {
                             <Link
                                 key={link.to}
                                 to={link.to}
-                                onClick={() => closeSidebar()}
                                 className={`relative flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors duration-200 group ${isActive ? 'text-white' : 'text-gray-400 hover:bg-[#2b2b2b] hover:text-white'}`}
                             >
                                 {isActive && (

@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react';
 import { useLocation, Outlet } from 'react-router-dom';
-import { useSwipe } from '../hooks/useSwipe';
 import {
-  Menu,
   Search,
   Sun,
   Moon
@@ -17,6 +15,7 @@ import { OfflineStatus } from './OfflineStatus';
 import { ToastContainer } from './UI/Toast';
 import { TourOverlay } from './UI/TourOverlay';
 import { Sidebar } from './Sidebar';
+import { BottomNav } from './BottomNav';
 
 const ThemeToggle: React.FC = () => {
   const { theme, toggleTheme, initTheme } = useThemeStore();
@@ -37,23 +36,12 @@ const ThemeToggle: React.FC = () => {
 };
 
 export const MainLayout: React.FC = () => {
-  const { isSidebarOpen, toggleSidebar, closeSidebar, toggleSearch } = useUIStore();
+  const { toggleSearch } = useUIStore();
   const location = useLocation();
-
-  // Mobile Gestures
-  const swipeHandlers = useSwipe({
-    onSwipeRight: () => {
-      if (!isSidebarOpen) toggleSidebar();
-    },
-    onSwipeLeft: () => {
-      if (isSidebarOpen) closeSidebar();
-    }
-  });
 
   return (
     <div
       className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950 transition-colors duration-300"
-      {...swipeHandlers}
     >
       <NetworkStatus />
       <OfflineStatus />
@@ -62,18 +50,15 @@ export const MainLayout: React.FC = () => {
       <TourOverlay />
 
       <div className="flex flex-1">
-        {/* New Sidebar Component */}
+        {/* Sidebar Component - Hidden on mobile via CSS in Sidebar.tsx */}
         <Sidebar />
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-w-0 pb-20 md:pb-0">
           {/* Header */}
           <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md h-16 border-b border-gray-200/50 dark:border-gray-800/50 flex items-center justify-between px-4 md:px-8 sticky top-0 z-30 transition-all duration-300">
             <div className="flex items-center gap-3">
-              <button onClick={toggleSidebar} className="md:hidden p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md">
-                <Menu size={20} />
-              </button>
-              <h1 className="text-lg font-semibold text-davus-dark dark:text-white hidden md:block">Sistema de Gestão</h1>
+              <h1 className="text-lg font-semibold text-davus-dark dark:text-white block">Sistema de Gestão</h1>
             </div>
 
             <div className="flex items-center gap-2">
@@ -105,6 +90,9 @@ export const MainLayout: React.FC = () => {
           </main>
         </div>
       </div>
+
+      {/* Bottom Navigation for Mobile */}
+      <BottomNav />
     </div>
   );
 };
