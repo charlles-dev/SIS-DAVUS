@@ -167,8 +167,8 @@ Este projeto é **privado** e de propriedade exclusiva da **Davus Engenharia**.
 ---
 
 <div align="center">
-  
-  <p><strong>Davus Engenharia</strong></p>
-  <p>Sistema de Controle de Estoque e Patrimônio</p>
+  <img src="https://raw.githubusercontent.com/gist/charlles-dev/d312c9d35500d31b060a902e63f0ff88/raw/8fa869f737584a5ef52c1709b94b12ac6f5fcf3b/delta.svg"width=200px" />
+  <p><strong>BY DELTA RISE</strong></p>
+  <p>Inovação em cada linha de código</p>
   <p>Desenvolvido com ❤️ usando tecnologias open-source</p>
 </div>
