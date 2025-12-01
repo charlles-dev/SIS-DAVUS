@@ -13,10 +13,17 @@ export const PWAInstallPrompt: React.FC = () => {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
+        const isMobile = () => {
+            const userAgent = window.navigator.userAgent.toLowerCase();
+            return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+        };
+
         const handler = (e: Event) => {
             e.preventDefault();
             setDeferredPrompt(e as BeforeInstallPromptEvent);
-            setIsVisible(true);
+            if (isMobile()) {
+                setIsVisible(true);
+            }
         };
 
         window.addEventListener('beforeinstallprompt', handler);

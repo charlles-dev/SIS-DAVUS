@@ -111,7 +111,7 @@ export const Sidebar: React.FC = () => {
                             <Link
                                 key={link.to}
                                 to={link.to}
-                                onClick={() => { if (window.innerWidth < 768) closeSidebar() }}
+                                onClick={() => closeSidebar()}
                                 className={`relative flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors duration-200 group ${isActive ? 'text-white' : 'text-gray-400 hover:bg-[#2b2b2b] hover:text-white'}`}
                             >
                                 {isActive && (
