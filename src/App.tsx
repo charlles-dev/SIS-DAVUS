@@ -1,6 +1,7 @@
 import React, { Suspense, lazy, useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore, useThemeStore } from '@/store';
+import { AuthProvider, useAuth } from '@/context/AuthProvider';
 import { NotificationProvider } from '@/context/NotificationContext';
 import { TourProvider } from '@/context/TourContext';
 import { MainLayout } from '@/components/Layout';
@@ -49,6 +50,16 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+const PublicRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated } = useAuthStore();
+
+  if (isAuthenticated) {
+    return <Navigate to="/app/dashboard" replace />;
+  }
+
+  return <>{children}</>;
+};
+
 const LoadingFallback = () => (
   <div className="flex items-center justify-center h-screen bg-gray-50 dark:bg-gray-900">
     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-davus-primary"></div>
@@ -78,48 +89,62 @@ const App: React.FC = () => {
         <HashRouter>
           <NotificationProvider>
             <TourProvider>
-              <Toaster position="top-right" richColors />
-              <PWAUpdateToast />
-              <PWAInstallPrompt />
-              <Suspense fallback={<LoadingFallback />}>
-                <Routes>
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                  <Route path="/" element={<LandingPage />} />
-                  <Route path="/force-change-password" element={<ForceChangePasswordPage />} />
+              <AuthProvider>
+                <Toaster position="top-right" richColors />
+                <PWAUpdateToast />
+                <PWAInstallPrompt />
+                <Suspense fallback={<LoadingFallback />}>
+                  <Routes>
+                    <Route path="/login" element={
+                      <PublicRoute>
+                        <LoginPage />
+                      </PublicRoute>
+                    } />
+                    <Route path="/forgot-password" element={
+                      <PublicRoute>
+                        <ForgotPasswordPage />
+                      </PublicRoute>
+                    } />
+                    <Route path="/" element={
+                      <PublicRoute>
+                        <LandingPage />
+                      </PublicRoute>
+                    } />
+                    <Route path="/force-change-password" element={<ForceChangePasswordPage />} />
 
-                  <Route path="/app" element={
-                    <ProtectedRoute>
-                      <MainLayout />
-                    </ProtectedRoute>
-                  }>
-                    <Route index element={<Navigate to="/app/home" replace />} />
-                    <Route path="home" element={<HomePage />} />
-                    <Route path="dashboard" element={<DashboardPage />} />
-                    <Route path="profile" element={<ProfilePage />} />
+                    <Route path="/app" element={
+                      <ProtectedRoute>
+                        <MainLayout />
+                      </ProtectedRoute>
+                    }>
+                      <Route index element={<Navigate to="/app/home" replace />} />
+                      <Route path="home" element={<HomePage />} />
+                      <Route path="dashboard" element={<DashboardPage />} />
+                      <Route path="profile" element={<ProfilePage />} />
 
-                    <Route path="inventory" element={<InventoryPage />} />
-                    <Route path="movements" element={<MovementHistoryPage />} />
-                    <Route path="purchases" element={<PurchasePage />} />
+                      <Route path="inventory" element={<InventoryPage />} />
+                      <Route path="movements" element={<MovementHistoryPage />} />
+                      <Route path="purchases" element={<PurchasePage />} />
 
-                    <Route path="assets" element={<AssetsPage />} />
-                    <Route path="assets/:id" element={<AssetDetailsPage />} />
+                      <Route path="assets" element={<AssetsPage />} />
+                      <Route path="assets/:id" element={<AssetDetailsPage />} />
 
-                    <Route path="checkouts" element={<CheckoutsPage />} />
-                    <Route path="admin" element={<AdminPage />} />
-                    <Route path="reports" element={<ReportsPage />} />
+                      <Route path="checkouts" element={<CheckoutsPage />} />
+                      <Route path="admin" element={<AdminPage />} />
+                      <Route path="reports" element={<ReportsPage />} />
 
 
-                    <Route path="locations" element={<LocationsPage />} />
-                    <Route path="maintenance-board" element={<MaintenanceBoardPage />} />
-                    <Route path="admin-tools" element={<AdminToolsPage />} />
-                    <Route path="bulk-print" element={<BulkPrintPage />} />
+                      <Route path="locations" element={<LocationsPage />} />
+                      <Route path="maintenance-board" element={<MaintenanceBoardPage />} />
+                      <Route path="admin-tools" element={<AdminToolsPage />} />
+                      <Route path="bulk-print" element={<BulkPrintPage />} />
 
-                    <Route path="unauthorized" element={<UnauthorizedPage />} />
-                    <Route path="*" element={<NotFoundPage />} />
-                  </Route>
-                </Routes>
-              </Suspense>
+                      <Route path="unauthorized" element={<UnauthorizedPage />} />
+                      <Route path="*" element={<NotFoundPage />} />
+                    </Route>
+                  </Routes>
+                </Suspense>
+              </AuthProvider>
             </TourProvider>
           </NotificationProvider>
         </HashRouter>
