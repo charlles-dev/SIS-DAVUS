@@ -24,7 +24,8 @@ export const LoginPage: React.FC = () => {
       login(response);
       navigate('/app/home');
     } catch (error) {
-      toast.error('Login falhou. Verifique suas credenciais.');
+      console.error('Login error caught in component:', error);
+      toast.error(error instanceof Error ? error.message : 'Login falhou. Verifique suas credenciais.');
       setLoading(false);
     }
   };

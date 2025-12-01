@@ -24,60 +24,71 @@ import { useAuthStore } from '@/store/useAuthStore';
 
 export const AuthService = {
   login: async (username: string, password?: string): Promise<LoginResponse> => {
-    let email = username;
+    const loginPromise = async () => {
+      let email = username;
 
-    // Check if input is CPF (only digits)
-    const isCpf = /^\d+$/.test(username.replace(/\D/g, ''));
-    if (isCpf) {
+      // Check if input is CPF (only digits)
+      const isCpf = /^\d+$/.test(username.replace(/\D/g, ''));
+      if (isCpf) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('cpf', username.replace(/\D/g, ''))
+          .single();
+
+        if (profile) {
+          email = profile.username;
+        }
+      } else if (!username.includes('@')) {
+        email = `${username}@davus.com`;
+      }
+
+      if (!password) {
+        throw new Error("Password is required for Supabase auth");
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+      if (!data.user || !data.session) throw new Error("Login failed: No user or session returned");
+
+      const user: User = {
+        id: data.user.id,
+        username: data.user.user_metadata.username || data.user.email || '',
+        full_name: data.user.user_metadata.full_name || '',
+        role: data.user.user_metadata.role || UserRole.OPERATOR,
+        is_active: true
+      };
+
+      // Check profile for must_change_password
       const { data: profile } = await supabase
         .from('profiles')
-        .select('username') // username field in profiles stores the email (historical naming) or we should use email if we added it. 
-        // Wait, profiles.username was storing the email/username. 
-        // Let's check handle_new_user trigger. It stores email in username column.
-        .eq('cpf', username.replace(/\D/g, ''))
+        .select('must_change_password')
+        .eq('id', user.id)
         .single();
 
-      if (profile) {
-        email = profile.username;
-      }
-    } else if (!username.includes('@')) {
-      email = `${username}@davus.com`;
-    }
+      return {
+        token: data.session.access_token,
+        user: {
+          ...user,
+          must_change_password: profile?.must_change_password
+        }
+      };
+    };
 
-    if (!password) {
-      throw new Error("Password is required for Supabase auth");
-    }
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    // Race between login and a timeout
+    const timeoutPromise = new Promise<LoginResponse>((_, reject) => {
+      setTimeout(() => {
+        console.error('Login timed out after 10s');
+        reject(new Error('Tempo limite de conexão excedido. Verifique sua internet.'));
+      }, 10000);
     });
 
-    if (error) throw error;
-    if (!data.user || !data.session) throw new Error("Login failed: No user or session returned");
-
-    const user: User = {
-      id: data.user.id,
-      username: data.user.user_metadata.username || data.user.email || '',
-      full_name: data.user.user_metadata.full_name || '',
-      role: data.user.user_metadata.role || UserRole.OPERATOR,
-      is_active: true
-    };
-
-    // Check profile for must_change_password
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('must_change_password')
-      .eq('id', user.id)
-      .single();
-
-    return {
-      token: data.session.access_token,
-      user: {
-        ...user,
-        must_change_password: profile?.must_change_password
-      }
-    };
+    console.log('Starting login race...');
+    return Promise.race([loginPromise(), timeoutPromise]);
   },
   resetPassword: async (email: string): Promise<void> => {
     const { error } = await supabase.auth.resetPasswordForEmail(email);
