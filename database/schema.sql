@@ -7,22 +7,6 @@ create table if not exists public.products (
     name text not null,
     category text not null,
     unit text not null,
-    current_stock numeric default 0,
-    min_threshold numeric default 0,
-    last_updated timestamptz default now()
-);
-
--- Locations Table
-create table if not exists public.locations (
-    id uuid primary key default uuid_generate_v4 (),
-    name text not null,
-    active boolean default true
-);
-
--- Assets Table
-create table if not exists public.assets (
-    id uuid primary key default uuid_generate_v4 (),
-    name text not null,
     asset_tag text unique not null,
     brand text,
     location_id uuid references public.locations (id),

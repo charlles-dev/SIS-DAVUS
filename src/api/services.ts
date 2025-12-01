@@ -19,11 +19,6 @@ import {
   AuditLog,
   Notification
 } from '@/types/types';
-import { api } from '@/lib/axios';
-import { compressImage } from '@/lib/ImageCompressor';
-
-// --- Services ---
-
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/useAuthStore';
 
@@ -132,128 +127,366 @@ export const AuthService = {
 
 export const InventoryService = {
   getProducts: async (): Promise<Product[]> => {
-    const response = await api.get<Product[]>('/inventory/products/');
-    return response.data;
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('name');
+    if (error) throw error;
+    return data || [];
   },
   getCategories: async (): Promise<string[]> => {
-    const response = await api.get<string[]>('/inventory/categories/');
-    return response.data;
+    const { data, error } = await supabase
+      .from('products')
+      .select('category');
+    if (error) throw error;
+    // Unique categories
+    const categories = Array.from(new Set(data?.map(p => p.category) || []));
+    return categories;
   },
   createProduct: async (product: Omit<Product, 'id'>): Promise<Product> => {
-    const response = await api.post<Product>('/inventory/products/', product);
-    return response.data;
+    const { data, error } = await supabase
+      .from('products')
+      .insert(product)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
   },
   updateProduct: async (product: Product): Promise<Product> => {
-    const response = await api.put<Product>(`/inventory/products/${product.id}/`, product);
-    return response.data;
+    const { data, error } = await supabase
+      .from('products')
+      .update(product)
+      .eq('id', product.id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
   },
   deleteProduct: async (id: string): Promise<void> => {
-    await api.delete(`/inventory/products/${id}/`);
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
   },
   getProductMovements: async (productId: string): Promise<StockMovement[]> => {
-    const response = await api.get<StockMovement[]>(`/inventory/products/${productId}/movements/`);
-    return response.data;
+    const { data, error } = await supabase
+      .from('stock_movements')
+      .select('*, products(name)')
+      .eq('product_id', productId)
+      .order('date', { ascending: false });
+
+    if (error) throw error;
+
+    return data.map((m: any) => ({
+      ...m,
+      product_name: m.products?.name
+    }));
   },
   getAllMovements: async (): Promise<StockMovement[]> => {
-    const response = await api.get<StockMovement[]>('/inventory/movements/');
-    return response.data;
+    const { data, error } = await supabase
+      .from('stock_movements')
+      .select('*, products(name)')
+      .order('date', { ascending: false });
+
+    if (error) throw error;
+
+    return data.map((m: any) => ({
+      ...m,
+      product_name: m.products?.name
+    }));
   },
   createMovement: async (productId: string, type: 'IN' | 'OUT', quantity: number, notes: string): Promise<void> => {
-    await api.post('/inventory/movements/', {
-      product_id: productId,
-      type,
-      quantity,
-      notes
-    });
+    const user = (await supabase.auth.getUser()).data.user;
+    const { error } = await supabase
+      .from('stock_movements')
+      .insert({
+        product_id: productId,
+        type,
+        quantity,
+        notes,
+        user_id: user?.id
+      });
+    if (error) throw error;
   }
 };
 
 export const PurchaseService = {
   getRequests: async (): Promise<PurchaseRequest[]> => {
-    const response = await api.get<PurchaseRequest[]>('/purchases/requests/');
-    return response.data;
+    const { data, error } = await supabase
+      .from('purchase_requests')
+      .select('*, products(name, unit)')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return data.map((r: any) => ({
+      ...r,
+      product_name: r.products?.name,
+      unit: r.unit || r.products?.unit // Fallback to product unit if not in request
+    }));
   },
   createRequest: async (request: Omit<PurchaseRequest, 'id' | 'status' | 'created_at' | 'product_name' | 'unit'>): Promise<void> => {
-    await api.post('/purchases/requests/', request);
+    // Fetch product unit first
+    const { data: product } = await supabase
+      .from('products')
+      .select('unit')
+      .eq('id', request.product_id)
+      .single();
+
+    const { error } = await supabase
+      .from('purchase_requests')
+      .insert({
+        ...request,
+        unit: product?.unit || 'UN'
+      });
+
+    if (error) throw error;
   },
   updateStatus: async (id: string, status: PurchaseStatus): Promise<void> => {
-    await api.patch(`/purchases/requests/${id}/`, { status });
+    const { error } = await supabase
+      .from('purchase_requests')
+      .update({ status })
+      .eq('id', id);
+
+    if (error) throw error;
   }
 };
 
 export const AssetService = {
   getAssets: async (): Promise<Asset[]> => {
-    const response = await api.get<Asset[]>('/assets/');
-    return response.data;
+    const { data, error } = await supabase
+      .from('assets')
+      .select('*')
+      .order('name');
+    if (error) throw error;
+    return data || [];
   },
   getAssetById: async (id: string): Promise<Asset | undefined> => {
-    const response = await api.get<Asset>(`/assets/${id}/`);
-    return response.data;
+    const { data, error } = await supabase
+      .from('assets')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error) throw error;
+    return data;
   },
   createAsset: async (asset: Omit<Asset, 'id' | 'image'> & { image?: File | string }): Promise<Asset> => {
+    let imageUrl = '';
+
     // Handle image upload if present
     if (asset.image instanceof File) {
-      const compressed = await compressImage(asset.image);
-      const formData = new FormData();
-      Object.entries(asset).forEach(([key, value]) => {
-        if (key === 'image') {
-          formData.append('image', compressed);
-        } else {
-          formData.append(key, String(value));
-        }
-      });
-      const response = await api.post<Asset>('/assets/', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      return response.data;
+      const file = asset.image;
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('assets')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error('Error uploading image:', uploadError);
+        // Continue without image or throw? Let's continue.
+      } else {
+        const { data: { publicUrl } } = supabase.storage
+          .from('assets')
+          .getPublicUrl(filePath);
+        imageUrl = publicUrl;
+      }
+    } else if (typeof asset.image === 'string') {
+      imageUrl = asset.image;
     }
 
-    const response = await api.post<Asset>('/assets/', asset);
-    return response.data;
+    const { data, error } = await supabase
+      .from('assets')
+      .insert({
+        ...asset,
+        image: imageUrl
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   },
   getAssetHistory: async (id: string): Promise<{ date: string, action: string, details: string }[]> => {
-    const response = await api.get<{ date: string, action: string, details: string }[]>(`/assets/${id}/history/`);
-    return response.data;
+    // Aggregate history from checkouts and maintenance
+    const { data: checkouts } = await supabase
+      .from('checkouts')
+      .select('*')
+      .eq('asset_id', id);
+
+    const { data: maintenance } = await supabase
+      .from('maintenance_orders')
+      .select('*')
+      .eq('asset_id', id);
+
+    const history: { date: string, action: string, details: string }[] = [];
+
+    checkouts?.forEach(c => {
+      history.push({
+        date: c.checked_out_at,
+        action: 'CHECKOUT',
+        details: `Retirado por ${c.worker_name}`
+      });
+      if (c.returned_at) {
+        history.push({
+          date: c.returned_at,
+          action: 'RETURN',
+          details: `Devolvido por ${c.worker_name}`
+        });
+      }
+    });
+
+    maintenance?.forEach(m => {
+      history.push({
+        date: m.opened_at,
+        action: 'MAINTENANCE',
+        details: `Manutenção: ${m.description} (${m.status})`
+      });
+    });
+
+    return history.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   },
   getLocations: async (): Promise<{ id: string, name: string }[]> => {
-    const response = await api.get<{ id: string, name: string }[]>('/assets/locations/');
-    return response.data;
+    const { data, error } = await supabase
+      .from('locations')
+      .select('id, name')
+      .eq('active', true)
+      .order('name');
+    if (error) throw error;
+    return data || [];
   },
   transferAsset: async (assetId: string, toLocationId: string): Promise<void> => {
-    await api.post(`/assets/${assetId}/transfer/`, { location_id: toLocationId });
+    const { error } = await supabase
+      .from('assets')
+      .update({ location_id: toLocationId })
+      .eq('id', assetId);
+    if (error) throw error;
   },
   getCheckouts: async (): Promise<Checkout[]> => {
-    const response = await api.get<Checkout[]>('/assets/checkouts/');
-    return response.data;
+    const { data, error } = await supabase
+      .from('checkouts')
+      .select('*, assets(name, asset_tag)')
+      .order('checked_out_at', { ascending: false });
+
+    if (error) throw error;
+
+    return data.map((c: any) => ({
+      ...c,
+      asset_name: c.assets?.name,
+      asset_tag: c.assets?.asset_tag
+    }));
   },
   createCheckout: async (data: Omit<Checkout, 'id' | 'asset_tag' | 'asset_name'>): Promise<void> => {
-    await api.post('/assets/checkouts/', data);
+    const { error } = await supabase
+      .from('checkouts')
+      .insert(data);
+    if (error) throw error;
+
+    // Update asset status
+    await supabase
+      .from('assets')
+      .update({ status: AssetStatus.IN_USE })
+      .eq('id', data.asset_id);
   },
   returnAsset: async (checkoutId: string): Promise<void> => {
-    await api.post(`/assets/checkouts/${checkoutId}/return/`);
+    const { data: checkout } = await supabase
+      .from('checkouts')
+      .update({ returned_at: new Date().toISOString() })
+      .eq('id', checkoutId)
+      .select()
+      .single();
+
+    if (checkout) {
+      await supabase
+        .from('assets')
+        .update({ status: AssetStatus.AVAILABLE })
+        .eq('id', checkout.asset_id);
+    }
   },
   getMaintenanceOrders: async (): Promise<MaintenanceOrder[]> => {
-    const response = await api.get<MaintenanceOrder[]>('/assets/maintenance/');
-    return response.data;
+    const { data, error } = await supabase
+      .from('maintenance_orders')
+      .select('*, assets(name, asset_tag)')
+      .order('opened_at', { ascending: false });
+
+    if (error) throw error;
+
+    return data.map((m: any) => ({
+      ...m,
+      asset_name: m.assets?.name,
+      asset_tag: m.assets?.asset_tag,
+      days_open: Math.floor((new Date().getTime() - new Date(m.opened_at).getTime()) / (1000 * 60 * 60 * 24))
+    }));
   },
   createMaintenanceOrder: async (data: Omit<MaintenanceOrder, 'id' | 'asset_tag' | 'asset_name' | 'opened_at' | 'days_open' | 'status'>): Promise<void> => {
-    await api.post('/assets/maintenance/', data);
+    const { error } = await supabase
+      .from('maintenance_orders')
+      .insert({
+        ...data,
+        status: MaintenanceStatus.OPEN
+      });
+    if (error) throw error;
+
+    await supabase
+      .from('assets')
+      .update({ status: AssetStatus.MAINTENANCE })
+      .eq('id', data.asset_id);
   },
   updateMaintenanceStatus: async (id: string, status: MaintenanceStatus): Promise<void> => {
-    await api.patch(`/assets/maintenance/${id}/`, { status });
+    const { data: order, error } = await supabase
+      .from('maintenance_orders')
+      .update({ status })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    if (status === MaintenanceStatus.COMPLETED && order) {
+      await supabase
+        .from('assets')
+        .update({ status: AssetStatus.AVAILABLE })
+        .eq('id', order.asset_id);
+    }
   }
 };
 
 export const LocationService = {
   getLocations: async (): Promise<Location[]> => {
-    const response = await api.get<Location[]>('/locations/');
-    return response.data;
+    const { data, error } = await supabase
+      .from('locations')
+      .select('*')
+      .order('name');
+
+    if (error) throw error;
+    return data || [];
   },
-  createLocation: async (name: string): Promise<void> => {
-    await api.post('/locations/', { name });
+  createLocation: async (location: Omit<Location, 'id' | 'active'>): Promise<void> => {
+    const { error } = await supabase
+      .from('locations')
+      .insert(location);
+
+    if (error) throw error;
   },
   toggleStatus: async (id: string): Promise<void> => {
-    await api.post(`/locations/${id}/toggle/`);
+    // First get current status
+    const { data: location } = await supabase
+      .from('locations')
+      .select('active')
+      .eq('id', id)
+      .single();
+
+    if (location) {
+      const { error } = await supabase
+        .from('locations')
+        .update({ active: !location.active })
+        .eq('id', id);
+
+      if (error) throw error;
+    }
   }
 };
 
@@ -323,24 +556,117 @@ export const AdminService = {
 
 export const ReportService = {
   getReports: async (): Promise<Report[]> => {
-    const response = await api.get<Report[]>('/reports/');
-    return response.data;
+    // Placeholder: In a real app, query a 'reports' table
+    return [];
   },
   generateReport: async (type: ReportType): Promise<void> => {
-    await api.post('/reports/generate/', { type });
+    console.log('Report generation requested:', type);
+    // Placeholder: Client-side generation or Edge Function would go here
+    alert('Funcionalidade de relatórios será implementada em breve.');
   }
 };
 
 export const DashboardService = {
   getSummary: async (): Promise<DashboardSummary> => {
-    const response = await api.get<DashboardSummary>('/dashboard/summary/');
-    return response.data;
+    // Parallel queries for dashboard stats
+    const [
+      { count: lowStockCount },
+      { count: maintenanceCount },
+      { data: assets },
+      { data: maintenanceOrders },
+      { data: locations }
+    ] = await Promise.all([
+      supabase.from('products').select('*', { count: 'exact', head: true }).lt('current_stock', 10), // Assuming 10 is global threshold or use filter
+      supabase.from('assets').select('*', { count: 'exact', head: true }).eq('status', AssetStatus.MAINTENANCE),
+      supabase.from('assets').select('purchase_value, location_id'),
+      supabase.from('maintenance_orders').select('cost, opened_at'),
+      supabase.from('locations').select('id, name')
+    ]);
+
+    // Calculate total asset value
+    const totalAssetValue = assets?.reduce((sum, a) => sum + (Number(a.purchase_value) || 0), 0) || 0;
+
+    // Calculate maintenance cost for current month
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const maintenanceCostMonth = maintenanceOrders?.reduce((sum, m) => {
+      const date = new Date(m.opened_at);
+      if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+        return sum + (Number(m.cost) || 0);
+      }
+      return sum;
+    }, 0) || 0;
+
+    // Calculate location distribution
+    const locationMap = new Map<string, number>();
+    assets?.forEach(a => {
+      if (a.location_id) {
+        locationMap.set(a.location_id, (locationMap.get(a.location_id) || 0) + 1);
+      }
+    });
+
+    const locationDistribution = locations?.map(l => ({
+      location: l.name,
+      count: locationMap.get(l.id) || 0
+    })) || [];
+
+    return {
+      alerts: {
+        low_stock_count: lowStockCount || 0,
+        maintenance_count: maintenanceCount || 0
+      },
+      financial: {
+        total_asset_value: totalAssetValue,
+        maintenance_cost_month: maintenanceCostMonth
+      },
+      location_distribution: locationDistribution
+    };
   },
   getNotifications: async (): Promise<Notification[]> => {
-    const response = await api.get<Notification[]>('/dashboard/notifications/');
-    return response.data;
+    // Generate notifications dynamically from data
+    const notifications: Notification[] = [];
+
+    // Low stock
+    const { data: lowStock } = await supabase
+      .from('products')
+      .select('name, current_stock, min_threshold')
+      .lt('current_stock', 10) // Simplified logic
+      .limit(5);
+
+    lowStock?.forEach(p => {
+      if (p.current_stock < p.min_threshold) {
+        notifications.push({
+          id: `stock-${p.name}`,
+          title: 'Estoque Baixo',
+          message: `O produto ${p.name} está com estoque baixo (${p.current_stock}).`,
+          time: new Date().toISOString(),
+          read: false,
+          type: 'INVENTORY'
+        });
+      }
+    });
+
+    // Maintenance
+    const { data: maintenance } = await supabase
+      .from('maintenance_orders')
+      .select('*, assets(name)')
+      .eq('status', MaintenanceStatus.OPEN)
+      .limit(5);
+
+    maintenance?.forEach((m: any) => {
+      notifications.push({
+        id: `maint-${m.id}`,
+        title: 'Manutenção em Aberto',
+        message: `Manutenção do ativo ${m.assets?.name} está em aberto.`,
+        time: m.opened_at,
+        read: false,
+        type: 'MAINTENANCE'
+      });
+    });
+
+    return notifications;
   },
   markAsRead: async (): Promise<void> => {
-    await api.post('/dashboard/notifications/mark-read/');
+    // No-op since notifications are dynamic
   }
 };

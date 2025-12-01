@@ -157,6 +157,11 @@ export interface DashboardSummary {
 export interface Location {
   id: string;
   name: string;
+  address?: string;
+  manager?: string;
+  start_date?: string;
+  expected_end_date?: string;
+  description?: string;
   active: boolean;
 }
 
