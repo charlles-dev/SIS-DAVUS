@@ -35,9 +35,10 @@ export const ForceChangePasswordPage: React.FC = () => {
 
             toast.success('Senha alterada com sucesso!');
             navigate('/app/home');
-        } catch (error) {
-            console.error(error);
-            toast.error('Erro ao alterar senha');
+        } catch (error: any) {
+            console.error('Change password error:', error);
+            const errorMessage = error.message || 'Erro ao alterar senha';
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
         }
