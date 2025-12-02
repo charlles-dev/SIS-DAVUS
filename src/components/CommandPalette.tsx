@@ -20,6 +20,7 @@ import {
     X
 } from 'lucide-react';
 import { useThemeStore, useAuthStore, useUIStore } from '../store';
+import { supabase } from '@/lib/supabase';
 
 export const CommandPalette: React.FC = () => {
     const { isSearchOpen, setSearchOpen, toggleSearch } = useUIStore();
@@ -27,6 +28,18 @@ export const CommandPalette: React.FC = () => {
     const { toggleTheme, theme } = useThemeStore();
     const { logout } = useAuthStore();
     const [query, setQuery] = useState('');
+
+    const handleLogout = async () => {
+        try {
+            await supabase.auth.signOut();
+        } catch (error) {
+            console.error('Error signing out:', error);
+        } finally {
+            localStorage.clear();
+            logout();
+            window.location.replace('/');
+        }
+    };
 
     useEffect(() => {
         const down = (e: KeyboardEvent) => {
@@ -68,7 +81,7 @@ export const CommandPalette: React.FC = () => {
         { label: 'Inteligência Artificial', icon: Brain, action: () => navigate('/app/ai-insights'), group: 'Navegação' },
         { label: 'Alternar Tema', icon: theme === 'dark' ? Sun : Moon, action: toggleTheme, group: 'Ações' },
         { label: 'Configurações', icon: Settings, action: () => navigate('/app/profile'), group: 'Ações' },
-        { label: 'Sair do Sistema', icon: LogOut, action: logout, group: 'Ações', className: 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20' },
+        { label: 'Sair do Sistema', icon: LogOut, action: handleLogout, group: 'Ações', className: 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20' },
     ];
 
     const filteredItems = useMemo(() => {

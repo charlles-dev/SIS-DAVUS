@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { useUIStore } from '../store/useUIStore';
+import { supabase } from '@/lib/supabase';
 import { DavusLogo } from './UI';
 import { Button } from './UI';
 
@@ -29,6 +30,18 @@ export const Sidebar: React.FC = () => {
     const { user, logout } = useAuthStore();
     const location = useLocation();
     const [isCollapsed, setIsCollapsed] = React.useState(false);
+
+    const handleLogout = async () => {
+        try {
+            await supabase.auth.signOut();
+        } catch (error) {
+            console.error('Error signing out:', error);
+        } finally {
+            localStorage.clear();
+            logout();
+            window.location.replace('/');
+        }
+    };
 
     const links = [
         { to: '/app/home', icon: Home, label: 'Início', roles: ['ADMIN', 'MANAGER', 'OPERATOR'] },
@@ -119,6 +132,7 @@ export const Sidebar: React.FC = () => {
                     })}
                 </nav>
 
+
                 {/* Footer / User Profile */}
                 <div className="p-4 border-t border-[#2b2b2b] bg-[#181a1c]">
                     <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''} mb-3`}>
@@ -134,12 +148,12 @@ export const Sidebar: React.FC = () => {
                     </div>
 
                     {!isCollapsed ? (
-                        <Button variant="ghost" size="sm" className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-500/10" onClick={logout}>
+                        <Button variant="ghost" size="sm" className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-500/10" onClick={handleLogout}>
                             <LogOut className="h-4 w-4 mr-2" />
                             Sair
                         </Button>
                     ) : (
-                        <button onClick={logout} className="w-full flex justify-center text-red-400 hover:text-red-300 p-2 rounded hover:bg-red-500/10">
+                        <button onClick={handleLogout} className="w-full flex justify-center text-red-400 hover:text-red-300 p-2 rounded hover:bg-red-500/10">
                             <LogOut className="h-5 w-5" />
                         </button>
                     )}

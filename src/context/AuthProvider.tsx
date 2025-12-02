@@ -15,7 +15,8 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { login, logout, user } = useAuthStore();
-    const [loading, setLoading] = useState(true);
+    // Optimistic loading: if we have a user, don't show loading screen
+    const [loading, setLoading] = useState(!user);
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -180,14 +181,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (loading) {
             timeout = setTimeout(() => {
                 setShowSlowConnectionMsg(true);
-            }, 5000); // Show message after 5s
+            }, 10000); // Show message after 10s
         }
         return () => clearTimeout(timeout);
     }, [loading]);
 
     const handleReset = () => {
-        console.warn('User triggered manual reset');
+        console.warn('User triggered manual reset (reload only)');
+        window.location.reload();
+    };
+
+    const handleLogoutAndClear = async () => {
+        console.warn('User triggered manual logout and clear');
         localStorage.clear();
+        await supabase.auth.signOut();
+        logout();
         window.location.reload();
     };
 
@@ -203,12 +211,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                 <p className="text-sm text-amber-600 dark:text-amber-500">
                                     A conexão está lenta ou o servidor não está respondendo.
                                 </p>
-                                <button
-                                    onClick={handleReset}
-                                    className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm"
-                                >
-                                    Reiniciar Aplicação
-                                </button>
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={handleReset}
+                                        className="px-4 py-2 bg-davus-primary text-white rounded-lg text-sm font-medium hover:bg-davus-primary/90 transition-colors shadow-sm"
+                                    >
+                                        Tentar Novamente
+                                    </button>
+                                    <button
+                                        onClick={handleLogoutAndClear}
+                                        className="px-4 py-2 bg-white dark:bg-gray-800 border border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 rounded-lg text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors shadow-sm"
+                                    >
+                                        Sair e Limpar Dados
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>

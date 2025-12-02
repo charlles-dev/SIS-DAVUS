@@ -590,6 +590,10 @@ export const ReportService = {
 
 export const DashboardService = {
   getSummary: async (): Promise<DashboardSummary> => {
+    // Ensure session is ready (fixes race condition with optimistic auth)
+    await supabase.auth.getSession();
+
+    // Try to get from cache first
     try {
       const cachedRaw = localStorage.getItem('dashboard_summary');
       if (cachedRaw) {
@@ -599,73 +603,61 @@ export const DashboardService = {
         }
       }
     } catch (_) { }
-    try {
-      const [
-        { count: lowStockCount },
-        { count: maintenanceCount },
-        { data: assets },
-        { data: maintenanceOrders },
-        { data: locations }
-      ] = await Promise.all([
-        supabase.from('products').select('*', { count: 'exact', head: true }).lt('current_stock', 10),
-        supabase.from('assets').select('*', { count: 'exact', head: true }).eq('status', AssetStatus.MAINTENANCE),
-        supabase.from('assets').select('purchase_value, location_id'),
-        supabase.from('maintenance_orders').select('cost, opened_at'),
-        supabase.from('locations').select('id, name')
-      ]);
 
-      const totalAssetValue = assets?.reduce((sum, a) => sum + (Number(a.purchase_value) || 0), 0) || 0;
+    // Fetch fresh data with timeout
+    const [
+      { count: lowStockCount },
+      { count: maintenanceCount },
+      { data: assets },
+      { data: maintenanceOrders },
+      { data: locations }
+    ] = await withTimeout(Promise.all([
+      supabase.from('products').select('*', { count: 'exact', head: true }).lt('current_stock', 10),
+      supabase.from('assets').select('*', { count: 'exact', head: true }).eq('status', AssetStatus.MAINTENANCE),
+      supabase.from('assets').select('purchase_value, location_id'),
+      supabase.from('maintenance_orders').select('cost, opened_at'),
+      supabase.from('locations').select('id, name')
+    ]), 20000);
 
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
-      const maintenanceCostMonth = maintenanceOrders?.reduce((sum, m) => {
-        const date = new Date(m.opened_at);
-        if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
-          return sum + (Number(m.cost) || 0);
-        }
-        return sum;
-      }, 0) || 0;
+    const totalAssetValue = assets?.reduce((sum, a) => sum + (Number(a.purchase_value) || 0), 0) || 0;
 
-      const locationMap = new Map<string, number>();
-      assets?.forEach(a => {
-        if (a.location_id) {
-          locationMap.set(a.location_id, (locationMap.get(a.location_id) || 0) + 1);
-        }
-      });
-
-      const locationDistribution = locations?.map(l => ({
-        location: l.name,
-        count: locationMap.get(l.id) || 0
-      })) || [];
-
-      const result = {
-        alerts: {
-          low_stock_count: lowStockCount || 0,
-          maintenance_count: maintenanceCount || 0
-        },
-        financial: {
-          total_asset_value: totalAssetValue,
-          maintenance_cost_month: maintenanceCostMonth
-        },
-        location_distribution: locationDistribution
-      };
-      try {
-        localStorage.setItem('dashboard_summary', JSON.stringify({ ts: Date.now(), data: result }));
-      } catch (_) { }
-      return result;
-    } catch (err: any) {
-      const msg = String(err?.message || '').toLowerCase();
-      if (err?.name === 'AbortError' || msg.includes('aborted')) {
-        console.warn('Dashboard requests aborted (likely navigation or SW update). Returning defaults.');
-      } else {
-        console.warn('Dashboard summary failed, returning defaults:', err);
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const maintenanceCostMonth = maintenanceOrders?.reduce((sum, m) => {
+      const date = new Date(m.opened_at);
+      if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+        return sum + (Number(m.cost) || 0);
       }
-      return {
-        alerts: { low_stock_count: 0, maintenance_count: 0 },
-        financial: { total_asset_value: 0, maintenance_cost_month: 0 },
-        location_distribution: []
-      };
-    }
+      return sum;
+    }, 0) || 0;
+
+    const locationMap = new Map<string, number>();
+    assets?.forEach(a => {
+      if (a.location_id) {
+        locationMap.set(a.location_id, (locationMap.get(a.location_id) || 0) + 1);
+      }
+    });
+
+    const locationDistribution = locations?.map(l => ({
+      location: l.name,
+      count: locationMap.get(l.id) || 0
+    })) || [];
+
+    const result = {
+      alerts: {
+        low_stock_count: lowStockCount || 0,
+        maintenance_count: maintenanceCount || 0
+      },
+      financial: {
+        total_asset_value: totalAssetValue,
+        maintenance_cost_month: maintenanceCostMonth
+      },
+      location_distribution: locationDistribution
+    };
+    try {
+      localStorage.setItem('dashboard_summary', JSON.stringify({ ts: Date.now(), data: result }));
+    } catch (_) { }
+    return result;
   },
   getNotifications: async (): Promise<Notification[]> => {
     // Generate notifications dynamically from data
@@ -721,7 +713,7 @@ export const DiagnosticsService = {
       const url = (import.meta as any).env.VITE_SUPABASE_URL;
       const key = (import.meta as any).env.VITE_SUPABASE_ANON_KEY;
       if (!url || !key) return { ok: false, details: 'Credenciais ausentes' };
-      const { error } = await withTimeout(supabase.from('profiles').select('id', { count: 'exact', head: true }).limit(1), 5000);
+      const { error } = await withTimeout(supabase.from('profiles').select('id', { count: 'exact', head: true }).limit(1), 15000);
       if (error) return { ok: false, details: error.message };
       return { ok: true };
     } catch (e: any) {
