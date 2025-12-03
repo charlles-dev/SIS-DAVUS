@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import {
   ShieldCheck, Upload, FileSpreadsheet
 } from 'lucide-react';
-import {
-  Button, Table, TableHeader, TableRow, TableHead, TableCell,
-  Card, CardContent, CardHeader, CardTitle, Select
-} from '../components/UI';
+import { Button } from '@/components/ui/Button';
+import { Table, TableHeader, TableRow, TableHead, TableCell } from '@/components/ui/Table';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Select } from '@/components/ui/Select';
 import { AdminService } from '@/api/services';
 import { AuditLog } from '@/types/types';
 

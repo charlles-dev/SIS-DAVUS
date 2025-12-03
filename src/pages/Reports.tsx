@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { FileDown, FileText, Loader2, QrCode, BarChart3, Archive } from 'lucide-react';
-import { 
-  Button, Badge, Table, TableHeader, TableRow, TableHead, TableCell, 
-  Card, CardContent, CardHeader, CardTitle 
-} from '../components/UI';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Table, TableHeader, TableRow, TableHead, TableCell } from '@/components/ui/Table';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { ReportService } from '@/api/services';
 import { Report, ReportType } from '@/types/types';
 
@@ -44,15 +44,15 @@ export const ReportsPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {reportTypes.map((rt) => (
           <Card key={rt.type} className="hover:border-davus-primary/50 transition-colors cursor-pointer" onClick={() => handleGenerate(rt.type)}>
-             <CardContent className="p-6 flex flex-col items-center text-center gap-4">
-               <div className="h-12 w-12 rounded-full bg-davus-primary/10 flex items-center justify-center text-davus-primary">
-                 {generating === rt.type ? <Loader2 className="animate-spin" /> : <rt.icon size={24} />}
-               </div>
-               <div>
-                 <h3 className="font-semibold text-davus-dark dark:text-gray-100">{rt.label}</h3>
-                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{rt.desc}</p>
-               </div>
-             </CardContent>
+            <CardContent className="p-6 flex flex-col items-center text-center gap-4">
+              <div className="h-12 w-12 rounded-full bg-davus-primary/10 flex items-center justify-center text-davus-primary">
+                {generating === rt.type ? <Loader2 className="animate-spin" /> : <rt.icon size={24} />}
+              </div>
+              <div>
+                <h3 className="font-semibold text-davus-dark dark:text-gray-100">{rt.label}</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{rt.desc}</p>
+              </div>
+            </CardContent>
           </Card>
         ))}
       </div>

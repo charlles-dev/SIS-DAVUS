@@ -10,7 +10,9 @@ import {
     Package,
     History as HistoryIcon
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from '../components/UI';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
 import { useAuthStore } from '../store';
 import { DashboardService } from '@/api/services';
 import { DashboardSummary } from '@/types/types';

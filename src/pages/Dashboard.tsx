@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { AlertTriangle, DollarSign, Wrench, MapPin, Settings, Layout } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Dialog, Checkbox } from '../components/UI';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Dialog } from '@/components/ui/Dialog';
+import { Checkbox } from '@/components/ui/Checkbox';
 import { DashboardService } from '@/api/services';
 import { toast } from 'sonner';
 import { DashboardSummary } from '@/types/types';
@@ -88,7 +91,7 @@ export const DashboardPage: React.FC = () => {
           <div>Falha ao carregar indicadores.</div>
           <Button variant="outline" onClick={() => {
             setError('');
-            DashboardService.getSummary().then(setData).catch(() => {});
+            DashboardService.getSummary().then(setData).catch(() => { });
           }}>Tentar novamente</Button>
         </div>
       ) : 'Carregando indicadores...'}

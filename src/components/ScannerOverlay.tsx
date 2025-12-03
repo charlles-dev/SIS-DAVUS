@@ -7,21 +7,25 @@ interface ScannerOverlayProps {
 
 export const ScannerOverlay: React.FC<ScannerOverlayProps> = ({ isFound = false }) => {
     return (
-        <div className="relative w-full h-full min-h-[400px] bg-black/60 flex items-center justify-center overflow-hidden">
-            {/* Focus Area */}
-            <div className="relative w-64 h-64">
-                {/* Brackets */}
+        <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-20">
+            {/* Dark overlay with cutout is handled by parent or CSS masking, 
+                but here we provide the visual guides */}
+
+            {/* Focus Area Container */}
+            <div className="relative w-72 h-72 sm:w-80 sm:h-80">
+
+                {/* Corner Brackets */}
                 <Bracket position="top-left" isFound={isFound} />
                 <Bracket position="top-right" isFound={isFound} />
                 <Bracket position="bottom-left" isFound={isFound} />
                 <Bracket position="bottom-right" isFound={isFound} />
 
-                {/* Laser */}
+                {/* Scanning Laser */}
                 {!isFound && (
                     <motion.div
-                        className="absolute left-0 right-0 h-0.5 bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]"
-                        animate={{ top: ['0%', '100%', '0%'] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                        className="absolute left-4 right-4 h-0.5 bg-gradient-to-r from-transparent via-davus-primary to-transparent shadow-[0_0_15px_rgba(249,115,22,0.8)]"
+                        animate={{ top: ['10%', '90%', '10%'] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                     />
                 )}
 
@@ -30,36 +34,43 @@ export const ScannerOverlay: React.FC<ScannerOverlayProps> = ({ isFound = false 
                     <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="absolute inset-0 border-2 border-green-500/50 bg-green-500/10 flex items-center justify-center"
+                        className="absolute inset-0 flex items-center justify-center"
                     >
-                        <span className="text-green-500 font-mono font-bold tracking-widest text-xl">
-                            TARGET ACQUIRED
-                        </span>
+                        <div className="glass px-6 py-3 rounded-xl border border-green-500/30 bg-green-500/10 backdrop-blur-md shadow-[0_0_30px_rgba(34,197,94,0.2)]">
+                            <span className="text-green-500 font-mono font-bold tracking-widest text-lg flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                TARGET ACQUIRED
+                            </span>
+                        </div>
                     </motion.div>
                 )}
             </div>
 
-            {/* Grid Overlay */}
-            <div
-                className="absolute inset-0 pointer-events-none opacity-10"
-                style={{
-                    backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)',
-                    backgroundSize: '40px 40px'
-                }}
-            />
+            {/* Helper Text */}
+            <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mt-8 text-white/80 text-center font-medium px-8 drop-shadow-md max-w-xs"
+            >
+                {isFound ? "Processando código..." : "Posicione o código QR dentro da área marcada"}
+            </motion.p>
         </div>
     );
 };
 
 const Bracket = ({ position, isFound }: { position: string, isFound: boolean }) => {
-    const color = isFound ? '#22c55e' : '#ff5d38';
+    const color = isFound ? '#22c55e' : 'var(--davus-primary)'; // Green or Primary Orange
+
     const style: React.CSSProperties = {
         position: 'absolute',
-        width: '20px',
-        height: '20px',
+        width: '40px',
+        height: '40px',
         borderColor: color,
         borderWidth: '4px',
-        transition: 'all 0.3s ease'
+        borderRadius: '4px', // Slight rounding
+        transition: 'all 0.3s ease',
+        boxShadow: isFound ? '0 0 15px rgba(34, 197, 94, 0.4)' : '0 0 10px rgba(249, 115, 22, 0.3)'
     };
 
     if (position.includes('top')) style.top = 0;
@@ -84,8 +95,8 @@ const Bracket = ({ position, isFound }: { position: string, isFound: boolean }) 
     return (
         <motion.div
             style={style}
-            animate={!isFound ? { scale: [1, 1.1, 1] } : { scale: 1 }}
-            transition={{ duration: 1.5, repeat: Infinity }}
+            animate={!isFound ? { scale: [1, 1.05, 1], opacity: [0.8, 1, 0.8] } : { scale: 1, opacity: 1 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         />
     );
 };

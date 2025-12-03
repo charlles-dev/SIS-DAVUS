@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Download, FileSpreadsheet, FileText, FileJson, Settings } from 'lucide-react';
-import { Button, Dialog, Checkbox, Select } from './UI';
+import { Button } from '@/components/ui/Button';
+import { Dialog } from '@/components/ui/Dialog';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { Select } from '@/components/ui/Select';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';

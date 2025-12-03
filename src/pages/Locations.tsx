@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, MapPin, Power } from 'lucide-react';
-import {
-  Button, Input, Table, TableHeader, TableRow, TableHead, TableCell,
-  Card, CardContent, Dialog
-} from '../components/UI';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Table, TableHeader, TableRow, TableHead, TableCell } from '@/components/ui/Table';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Dialog } from '@/components/ui/Dialog';
 import { LocationService } from '@/api/services';
 import { Location } from '@/types/types';
 

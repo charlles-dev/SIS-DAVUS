@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store';
 import { AuthService } from '@/api/services';
-import { Button, Input, Card, CardContent, DavusLogo } from '../components/UI';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Card, CardContent } from '@/components/ui/Card';
+import { DavusLogo } from '@/components/ui/DavusLogo';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 

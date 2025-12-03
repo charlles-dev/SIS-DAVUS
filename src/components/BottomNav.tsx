@@ -100,6 +100,7 @@ export const BottomNav: React.FC = () => {
     ];
 
     const handleGroupClick = (groupId: string) => {
+        if (navigator.vibrate) navigator.vibrate(10);
         if (activeGroup === groupId) {
             setActiveGroup(null);
         } else {
@@ -108,6 +109,7 @@ export const BottomNav: React.FC = () => {
     };
 
     const handleItemClick = (to: string) => {
+        if (navigator.vibrate) navigator.vibrate(10);
         navigate(to);
         setActiveGroup(null);
     };
@@ -136,8 +138,8 @@ export const BottomNav: React.FC = () => {
                                         key={item.to}
                                         onClick={() => handleItemClick(item.to)}
                                         className={`flex flex-col items-center justify-center p-3 rounded-xl transition-colors ${location.pathname.startsWith(item.to)
-                                                ? 'bg-davus-primary/10 text-davus-primary'
-                                                : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400'
+                                            ? 'bg-davus-primary/10 text-davus-primary'
+                                            : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400'
                                             }`}
                                     >
                                         <item.icon size={24} className="mb-2" />
@@ -173,7 +175,7 @@ export const BottomNav: React.FC = () => {
                             {isActive && (
                                 <motion.div
                                     layoutId="bottom-nav-indicator"
-                                    className="absolute inset-0 bg-davus-primary/10 rounded-xl"
+                                    className="absolute inset-0 bg-davus-primary/10 rounded-xl shadow-[0_0_15px_rgba(249,115,22,0.3)]"
                                     initial={false}
                                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                                 />

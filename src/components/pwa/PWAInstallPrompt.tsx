@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Download, X } from 'lucide-react';
-import { Button } from '@/components/UI';
+import { Button } from '@/components/ui/Button';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -59,7 +59,7 @@ export const PWAInstallPrompt: React.FC = () => {
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 50 }}
-                    className="fixed bottom-4 left-4 z-50 flex items-center gap-4 p-4 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 max-w-sm"
+                    className="fixed bottom-20 left-4 z-50 flex items-center gap-4 p-4 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 max-w-sm"
                 >
                     <div className="p-2 bg-davus-primary/10 rounded-full">
                         <Download className="w-6 h-6 text-davus-primary" />

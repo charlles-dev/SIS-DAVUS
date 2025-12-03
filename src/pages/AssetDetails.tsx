@@ -2,8 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Calendar, DollarSign, Wrench, HardHat, FileText, Printer, QrCode } from 'lucide-react';
-import { Button, Card, CardContent, CardHeader, CardTitle, Badge } from '../components/UI';
-import { AssetService } from '@/api/services';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { AssetService, LocationService } from '@/api/services';
 import { Asset, Location } from '@/types/types';
 
 export const AssetDetailsPage: React.FC = () => {
@@ -20,7 +22,7 @@ export const AssetDetailsPage: React.FC = () => {
   }, [id]);
 
   useEffect(() => {
-    AssetService.getLocations().then(setLocations).catch(() => {});
+    LocationService.getLocations().then(setLocations).catch(() => { });
   }, []);
 
   const getLocationName = (locId?: string) => {

@@ -43,7 +43,9 @@ export default {
             },
             boxShadow: {
                 'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                'soft-lg': '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
                 'glow': '0 0 15px rgba(249, 115, 22, 0.3)',
+                'glow-lg': '0 0 25px rgba(249, 115, 22, 0.5)',
             }
         },
     },

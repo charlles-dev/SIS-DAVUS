@@ -10,15 +10,15 @@ import {
     ArrowRight,
     CheckCircle2
 } from 'lucide-react';
-import { DavusLogo } from '../components/UI';
+import { DavusLogo } from '@/components/ui/DavusLogo';
 import { getVariant, trackEvent } from '@/lib/ab';
 
 export const LandingPage: React.FC = () => {
-  const navigate = useNavigate();
-  const ctaVariant = getVariant('landing-cta', ['A','B']);
-  React.useEffect(() => {
-    trackEvent('landing-cta', ctaVariant, 'view');
-  }, [ctaVariant]);
+    const navigate = useNavigate();
+    const ctaVariant = getVariant('landing-cta', ['A', 'B']);
+    React.useEffect(() => {
+        trackEvent('landing-cta', ctaVariant, 'view');
+    }, [ctaVariant]);
 
     const features = [
         {

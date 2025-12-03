@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { toast } from 'sonner';
 import { RefreshCw } from 'lucide-react';
-import { Button } from '@/components/UI';
+import { Button } from '@/components/ui/Button';
 
 export const PWAUpdateToast: React.FC = () => {
     const {

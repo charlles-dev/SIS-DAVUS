@@ -12,8 +12,8 @@ import { NotificationsPopover } from './Shared';
 import { NetworkStatus } from './NetworkStatus';
 import { CommandPalette } from './CommandPalette';
 import { OfflineStatus } from './OfflineStatus';
-import { ToastContainer } from './UI/Toast';
-import { TourOverlay } from './UI/TourOverlay';
+import { ToastContainer } from './ui/Toast';
+import { TourOverlay } from './ui/TourOverlay';
 import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
 
