@@ -20,6 +20,7 @@ import {
     ChevronLeft,
     ChevronRight
 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '../store/useAuthStore';
 import { useUIStore } from '../store/useUIStore';
 import { DavusLogo } from '@/components/ui/DavusLogo';
@@ -30,7 +31,15 @@ export const Sidebar: React.FC = () => {
     const location = useLocation();
     const [isCollapsed, setIsCollapsed] = React.useState(false);
 
-
+    const handleLogout = async () => {
+        try {
+            await supabase.auth.signOut();
+        } catch (error) {
+            console.error('Error signing out:', error);
+        } finally {
+            logout();
+        }
+    };
 
     const links = [
         { to: '/app/home', icon: Home, label: 'Início', roles: ['ADMIN', 'MANAGER', 'OPERATOR'] },
@@ -137,12 +146,12 @@ export const Sidebar: React.FC = () => {
                     </div>
 
                     {!isCollapsed ? (
-                        <Button variant="ghost" size="sm" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-500/10" onClick={logout}>
+                        <Button variant="ghost" size="sm" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-500/10" onClick={handleLogout}>
                             <LogOut className="h-4 w-4 mr-2" />
                             Sair
                         </Button>
                     ) : (
-                        <button onClick={logout} className="w-full flex justify-center text-red-600 hover:text-red-700 p-2 rounded hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-500/10">
+                        <button onClick={handleLogout} className="w-full flex justify-center text-red-600 hover:text-red-700 p-2 rounded hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-500/10">
                             <LogOut className="h-5 w-5" />
                         </button>
                     )}

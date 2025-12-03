@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { Card, CardContent } from '@/components/ui/Card';
 import { toast } from 'sonner';
 import { Lock } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 export const ForceChangePasswordPage: React.FC = () => {
     const navigate = useNavigate();
@@ -86,7 +87,11 @@ export const ForceChangePasswordPage: React.FC = () => {
                                 type="button"
                                 variant="ghost"
                                 className="w-full"
-                                onClick={() => { logout(); navigate('/login'); }}
+                                onClick={async () => {
+                                    await supabase.auth.signOut();
+                                    logout();
+                                    navigate('/login');
+                                }}
                             >
                                 Sair
                             </Button>
