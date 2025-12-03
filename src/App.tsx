@@ -1,7 +1,7 @@
 import React, { Suspense, lazy, useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore, useThemeStore } from '@/store';
-import { AuthProvider, useAuth } from '@/context/AuthProvider';
+import { AuthProvider } from '@/context/AuthProvider';
 import { NotificationProvider } from '@/context/NotificationContext';
 import { TourProvider } from '@/context/TourContext';
 import { MainLayout } from '@/components/Layout';
@@ -12,6 +12,7 @@ import { queryClient } from '@/lib/queryClient';
 import { PWAInstallPrompt } from '@/components/pwa/PWAInstallPrompt';
 import { PWAUpdateToast } from '@/components/pwa/PWAUpdateToast';
 import { DiagnosticsService } from '@/api/services';
+import { EnvCheck } from '@/components/EnvCheck';
 
 // Lazy load pages
 const HomePage = lazy(() => import('@/pages/Home').then(module => ({ default: module.HomePage })));
@@ -115,82 +116,75 @@ const App: React.FC = () => {
     check();
   }, []);
 
-  import { EnvCheck } from '@/components/EnvCheck';
+  return (
+    <ErrorBoundary>
+      <EnvCheck />
+      <QueryClientProvider client={queryClient}>
+        <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <NotificationProvider>
+            <TourProvider>
+              <AuthProvider>
+                <Toaster position="top-right" richColors />
+                <PWAUpdateToast />
+                <PWAInstallPrompt />
+                <Suspense fallback={<LoadingFallback />}>
+                  <Routes>
+                    <Route path="/login" element={
+                      <PublicRoute>
+                        <LoginPage />
+                      </PublicRoute>
+                    } />
+                    <Route path="/forgot-password" element={
+                      <PublicRoute>
+                        <ForgotPasswordPage />
+                      </PublicRoute>
+                    } />
+                    <Route path="/" element={
+                      <PublicRoute>
+                        <LandingPage />
+                      </PublicRoute>
+                    } />
+                    <Route path="/force-change-password" element={<ForceChangePasswordPage />} />
 
-  // ... existing imports
+                    <Route path="/app" element={
+                      <ProtectedRoute>
+                        <MainLayout />
+                      </ProtectedRoute>
+                    }>
+                      <Route index element={<Navigate to="/app/home" replace />} />
+                      <Route path="home" element={<HomePage />} />
+                      <Route path="dashboard" element={<DashboardPage />} />
+                      <Route path="profile" element={<ProfilePage />} />
 
-  const App: React.FC = () => {
-    // ... existing hooks
+                      <Route path="inventory" element={<InventoryPage />} />
+                      <Route path="movements" element={<MovementHistoryPage />} />
+                      <Route path="purchases" element={<PurchasePage />} />
 
-    return (
-      <ErrorBoundary>
-        <EnvCheck />
-        <QueryClientProvider client={queryClient}>
-          <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-            <NotificationProvider>
-              <TourProvider>
-                <AuthProvider>
-                  <Toaster position="top-right" richColors />
-                  <PWAUpdateToast />
-                  <PWAInstallPrompt />
-                  <Suspense fallback={<LoadingFallback />}>
-                    <Routes>
-                      <Route path="/login" element={
-                        <PublicRoute>
-                          <LoginPage />
-                        </PublicRoute>
-                      } />
-                      <Route path="/forgot-password" element={
-                        <PublicRoute>
-                          <ForgotPasswordPage />
-                        </PublicRoute>
-                      } />
-                      <Route path="/" element={
-                        <PublicRoute>
-                          <LandingPage />
-                        </PublicRoute>
-                      } />
-                      <Route path="/force-change-password" element={<ForceChangePasswordPage />} />
+                      <Route path="assets" element={<AssetsPage />} />
+                      <Route path="assets/:id" element={<AssetDetailsPage />} />
 
-                      <Route path="/app" element={
-                        <ProtectedRoute>
-                          <MainLayout />
-                        </ProtectedRoute>
-                      }>
-                        <Route index element={<Navigate to="/app/home" replace />} />
-                        <Route path="home" element={<HomePage />} />
-                        <Route path="dashboard" element={<DashboardPage />} />
-                        <Route path="profile" element={<ProfilePage />} />
-
-                        <Route path="inventory" element={<InventoryPage />} />
-                        <Route path="movements" element={<MovementHistoryPage />} />
-                        <Route path="purchases" element={<PurchasePage />} />
-
-                        <Route path="assets" element={<AssetsPage />} />
-                        <Route path="assets/:id" element={<AssetDetailsPage />} />
-
-                        <Route path="checkouts" element={<CheckoutsPage />} />
-                        <Route path="admin" element={<AdminPage />} />
-                        <Route path="reports" element={<ReportsPage />} />
+                      <Route path="checkouts" element={<CheckoutsPage />} />
+                      <Route path="admin" element={<AdminPage />} />
+                      <Route path="reports" element={<ReportsPage />} />
 
 
-                        <Route path="locations" element={<LocationsPage />} />
-                        <Route path="maintenance-board" element={<MaintenanceBoardPage />} />
-                        <Route path="admin-tools" element={<AdminToolsPage />} />
-                        <Route path="bulk-print" element={<BulkPrintPage />} />
+                      <Route path="locations" element={<LocationsPage />} />
+                      <Route path="maintenance-board" element={<MaintenanceBoardPage />} />
+                      <Route path="admin-tools" element={<AdminToolsPage />} />
+                      <Route path="bulk-print" element={<BulkPrintPage />} />
 
-                        <Route path="unauthorized" element={<UnauthorizedPage />} />
-                        <Route path="*" element={<NotFoundPage />} />
-                      </Route>
-                    </Routes>
-                  </Suspense>
-                </AuthProvider>
-              </TourProvider>
-            </NotificationProvider>
-          </HashRouter>
-        </QueryClientProvider>
-      </ErrorBoundary>
-    );
-  };
+                      <Route path="unauthorized" element={<UnauthorizedPage />} />
+                      <Route path="*" element={<NotFoundPage />} />
+                    </Route>
+                  </Routes>
+                </Suspense>
+              </AuthProvider>
+            </TourProvider>
+          </NotificationProvider>
+        </HashRouter>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
+};
 
-  export default App;
+export default App;
