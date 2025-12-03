@@ -115,74 +115,82 @@ const App: React.FC = () => {
     check();
   }, []);
 
-  return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <NotificationProvider>
-            <TourProvider>
-              <AuthProvider>
-                <Toaster position="top-right" richColors />
-                <PWAUpdateToast />
-                <PWAInstallPrompt />
-                <Suspense fallback={<LoadingFallback />}>
-                  <Routes>
-                    <Route path="/login" element={
-                      <PublicRoute>
-                        <LoginPage />
-                      </PublicRoute>
-                    } />
-                    <Route path="/forgot-password" element={
-                      <PublicRoute>
-                        <ForgotPasswordPage />
-                      </PublicRoute>
-                    } />
-                    <Route path="/" element={
-                      <PublicRoute>
-                        <LandingPage />
-                      </PublicRoute>
-                    } />
-                    <Route path="/force-change-password" element={<ForceChangePasswordPage />} />
+  import { EnvCheck } from '@/components/EnvCheck';
 
-                    <Route path="/app" element={
-                      <ProtectedRoute>
-                        <MainLayout />
-                      </ProtectedRoute>
-                    }>
-                      <Route index element={<Navigate to="/app/home" replace />} />
-                      <Route path="home" element={<HomePage />} />
-                      <Route path="dashboard" element={<DashboardPage />} />
-                      <Route path="profile" element={<ProfilePage />} />
+  // ... existing imports
 
-                      <Route path="inventory" element={<InventoryPage />} />
-                      <Route path="movements" element={<MovementHistoryPage />} />
-                      <Route path="purchases" element={<PurchasePage />} />
+  const App: React.FC = () => {
+    // ... existing hooks
 
-                      <Route path="assets" element={<AssetsPage />} />
-                      <Route path="assets/:id" element={<AssetDetailsPage />} />
+    return (
+      <ErrorBoundary>
+        <EnvCheck />
+        <QueryClientProvider client={queryClient}>
+          <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <NotificationProvider>
+              <TourProvider>
+                <AuthProvider>
+                  <Toaster position="top-right" richColors />
+                  <PWAUpdateToast />
+                  <PWAInstallPrompt />
+                  <Suspense fallback={<LoadingFallback />}>
+                    <Routes>
+                      <Route path="/login" element={
+                        <PublicRoute>
+                          <LoginPage />
+                        </PublicRoute>
+                      } />
+                      <Route path="/forgot-password" element={
+                        <PublicRoute>
+                          <ForgotPasswordPage />
+                        </PublicRoute>
+                      } />
+                      <Route path="/" element={
+                        <PublicRoute>
+                          <LandingPage />
+                        </PublicRoute>
+                      } />
+                      <Route path="/force-change-password" element={<ForceChangePasswordPage />} />
 
-                      <Route path="checkouts" element={<CheckoutsPage />} />
-                      <Route path="admin" element={<AdminPage />} />
-                      <Route path="reports" element={<ReportsPage />} />
+                      <Route path="/app" element={
+                        <ProtectedRoute>
+                          <MainLayout />
+                        </ProtectedRoute>
+                      }>
+                        <Route index element={<Navigate to="/app/home" replace />} />
+                        <Route path="home" element={<HomePage />} />
+                        <Route path="dashboard" element={<DashboardPage />} />
+                        <Route path="profile" element={<ProfilePage />} />
+
+                        <Route path="inventory" element={<InventoryPage />} />
+                        <Route path="movements" element={<MovementHistoryPage />} />
+                        <Route path="purchases" element={<PurchasePage />} />
+
+                        <Route path="assets" element={<AssetsPage />} />
+                        <Route path="assets/:id" element={<AssetDetailsPage />} />
+
+                        <Route path="checkouts" element={<CheckoutsPage />} />
+                        <Route path="admin" element={<AdminPage />} />
+                        <Route path="reports" element={<ReportsPage />} />
 
 
-                      <Route path="locations" element={<LocationsPage />} />
-                      <Route path="maintenance-board" element={<MaintenanceBoardPage />} />
-                      <Route path="admin-tools" element={<AdminToolsPage />} />
-                      <Route path="bulk-print" element={<BulkPrintPage />} />
+                        <Route path="locations" element={<LocationsPage />} />
+                        <Route path="maintenance-board" element={<MaintenanceBoardPage />} />
+                        <Route path="admin-tools" element={<AdminToolsPage />} />
+                        <Route path="bulk-print" element={<BulkPrintPage />} />
 
-                      <Route path="unauthorized" element={<UnauthorizedPage />} />
-                      <Route path="*" element={<NotFoundPage />} />
-                    </Route>
-                  </Routes>
-                </Suspense>
-              </AuthProvider>
-            </TourProvider>
-          </NotificationProvider>
-        </HashRouter>
-      </QueryClientProvider>
-    </ErrorBoundary>
-  );
-};
+                        <Route path="unauthorized" element={<UnauthorizedPage />} />
+                        <Route path="*" element={<NotFoundPage />} />
+                      </Route>
+                    </Routes>
+                  </Suspense>
+                </AuthProvider>
+              </TourProvider>
+            </NotificationProvider>
+          </HashRouter>
+        </QueryClientProvider>
+      </ErrorBoundary>
+    );
+  };
 
-export default App;
+  export default App;
