@@ -16,6 +16,7 @@ import { ToastContainer } from './ui/Toast';
 import { TourOverlay } from './ui/TourOverlay';
 import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
+import { UserMenu } from './UserMenu';
 
 const ThemeToggle: React.FC = () => {
   const { theme, toggleTheme, initTheme } = useThemeStore();
@@ -76,6 +77,9 @@ export const MainLayout: React.FC = () => {
               <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1"></div>
               <div data-tour="notifications">
                 <NotificationsPopover />
+              </div>
+              <div className="ml-1">
+                <UserMenu />
               </div>
             </div>
           </header>
