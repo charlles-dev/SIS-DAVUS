@@ -3,7 +3,14 @@ import React, { useEffect, useState } from 'react';
 import { Wrench, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Card, CardContent, Badge, Breadcrumbs, Dialog, Input, Select, Skeleton } from '../components/UI';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { Dialog } from '@/components/ui/Dialog';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { AssetService } from '@/api/services';
 import { MaintenanceOrder, MaintenanceStatus, Asset } from '@/types/types';
 import { maintenanceSchema, MaintenanceFormValues } from '@/lib/schemas';
@@ -152,7 +159,12 @@ export const MaintenanceBoardPage: React.FC = () => {
 
   const handleCreateOrder = async (data: MaintenanceFormValues) => {
     try {
-      await AssetService.createMaintenanceOrder(data);
+      await AssetService.createMaintenanceOrder({
+        asset_id: data.asset_id,
+        vendor: data.vendor,
+        description: data.description,
+        cost: data.cost
+      });
       toast.success("Ordem aberta com sucesso!");
       setIsModalOpen(false);
       reset();

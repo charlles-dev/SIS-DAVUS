@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShieldAlert, Ghost } from 'lucide-react';
-import { Button } from '../components/UI';
+import { Button } from '@/components/ui/Button';
 
 export const NotFoundPage: React.FC = () => {
   return (

@@ -1,12 +1,18 @@
 
 import React, { useEffect, useState } from 'react';
 import { Plus, Search, MoreVertical, ArrowUpRight, ArrowDownLeft, Edit, FileText, Trash2, AlertCircle, Info, Filter } from 'lucide-react';
-import {
-  Button, Input, Badge, Select, Dialog, Dropdown, DropdownItem, ConfirmDialog,
-  Table, TableHeader, TableRow, TableHead, TableCell,
-  Card, CardContent, CardHeader, CardTitle, Skeleton,
-  Breadcrumbs, Pagination, Checkbox
-} from '../components/UI';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Badge } from '@/components/ui/Badge';
+import { Select } from '@/components/ui/Select';
+import { Dialog, ConfirmDialog } from '@/components/ui/Dialog';
+import { Dropdown, DropdownItem } from '@/components/ui/Dropdown';
+import { Table, TableHeader, TableRow, TableHead, TableCell } from '@/components/ui/Table';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { Pagination } from '@/components/ui/Pagination';
+import { Checkbox } from '@/components/ui/Checkbox';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { MobileCard } from '../components/MobileCard';

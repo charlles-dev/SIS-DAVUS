@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { User, Lock } from 'lucide-react';
-import { Button, Input, Card, CardContent, CardHeader, CardTitle } from '../components/UI';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useAuthStore } from '../store';
 import { AuthService } from '@/api/services';
 import { toast } from 'sonner';

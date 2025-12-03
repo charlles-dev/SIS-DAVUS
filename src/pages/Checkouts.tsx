@@ -2,10 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { RotateCcw, AlertTriangle, Plus } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Button, Badge, Table, TableHeader, TableRow, TableHead, TableCell,
-  Card, CardContent, Breadcrumbs, Dialog, Select, Input
-} from '../components/UI';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Table, TableHeader, TableRow, TableHead, TableCell } from '@/components/ui/Table';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { Dialog } from '@/components/ui/Dialog';
+import { Select } from '@/components/ui/Select';
+import { Input } from '@/components/ui/Input';
 import { SignaturePad } from '../components/SignaturePad';
 import { AssetService } from '@/api/services';
 import { Checkout, Asset } from '@/types/types';
@@ -47,7 +51,9 @@ export const CheckoutsPage: React.FC = () => {
   const handleCreateCheckout = async (data: CheckoutFormValues) => {
     try {
       await AssetService.createCheckout({
-        ...data,
+        asset_id: data.asset_id,
+        worker_name: data.worker_name,
+        expected_return: data.expected_return,
         checked_out_at: new Date().toISOString()
       });
       toast.success("Empréstimo registrado com sucesso!");

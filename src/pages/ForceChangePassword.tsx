@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
 import { AuthService } from '@/api/services';
-import { Button, Input, Card, CardContent } from '@/components/UI';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Card, CardContent } from '@/components/ui/Card';
 import { toast } from 'sonner';
 import { Lock } from 'lucide-react';
 

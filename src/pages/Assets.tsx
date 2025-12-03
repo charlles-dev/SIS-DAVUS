@@ -4,11 +4,16 @@ import { Plus, QrCode, MapPin, Search, ArrowRightLeft, ExternalLink, Image as Im
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Button, Badge, Select, Input, Dialog, Breadcrumbs, Skeleton,
-  Table, TableHeader, TableRow, TableHead, TableCell,
-  Card, CardContent, CardHeader, CardTitle, Pagination
-} from '../components/UI';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Select } from '@/components/ui/Select';
+import { Input } from '@/components/ui/Input';
+import { Dialog } from '@/components/ui/Dialog';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { Table, TableHeader, TableRow, TableHead, TableCell } from '@/components/ui/Table';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Pagination } from '@/components/ui/Pagination';
 import { MobileCard } from '../components/MobileCard';
 import { ImageUpload } from '../components/Shared';
 const QRScannerLazy = React.lazy(() => import('../components/QRScanner').then(m => ({ default: m.QRScanner })));

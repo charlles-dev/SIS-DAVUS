@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AssetService } from '@/api/services';
+import { AssetService, LocationService } from '@/api/services';
 import { Asset, AssetFormValues } from '@/types/types';
 import { toast } from 'sonner';
 
@@ -13,7 +13,7 @@ export const useAssets = () => {
 
     const locationsQuery = useQuery({
         queryKey: ['locations'],
-        queryFn: AssetService.getLocations,
+        queryFn: LocationService.getLocations,
     });
 
     const createAssetMutation = useMutation({

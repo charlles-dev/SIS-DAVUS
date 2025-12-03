@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, UserPlus, UserX, UserCheck, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import {
-  Button, Input, Badge, Dialog, Select, Table, TableHeader, TableRow, TableHead, TableCell,
-  Card, CardContent
-} from '../components/UI';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Badge } from '@/components/ui/Badge';
+import { Dialog } from '@/components/ui/Dialog';
+import { Select } from '@/components/ui/Select';
+import { Table, TableHeader, TableRow, TableHead, TableCell } from '@/components/ui/Table';
+import { Card, CardContent } from '@/components/ui/Card';
 import { AdminService } from '@/api/services';
 import { User, UserRole } from '@/types/types';
 

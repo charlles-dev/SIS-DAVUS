@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Printer, Filter } from 'lucide-react';
-import {
-  Button, Table, TableHeader, TableRow, TableHead, TableCell,
-  Card, CardContent, Checkbox
-} from '../components/UI';
+import { Button } from '@/components/ui/Button';
+import { Table, TableHeader, TableRow, TableHead, TableCell } from '@/components/ui/Table';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Checkbox } from '@/components/ui/Checkbox';
 import { AssetService, ReportService } from '@/api/services';
 import { Asset, ReportType } from '@/types/types';
 import { toast } from 'sonner';

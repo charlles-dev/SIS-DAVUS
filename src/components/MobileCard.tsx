@@ -1,5 +1,7 @@
 import React from 'react';
-import { Card, CardContent, Badge, Button } from './UI';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { Edit, Trash2, ArrowRightLeft, Eye } from 'lucide-react';
 
 interface MobileCardProps {
